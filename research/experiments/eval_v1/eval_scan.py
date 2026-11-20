@@ -1,9 +1,11 @@
 """Replay `trellis scan` on AIDev agent PRs and measure which flags the PR itself later undid.
 
-A line flag is *undone* when a different commit in the same PR removes that exact line from the same file.
-A scope flag is *undone* when the PR's other commits revert every line the flagged file gained or lost.
-Undone flags are a proxy for "a reviewer, CI or the agent corrected it"; flags that survive on merged PRs
-are counted as false alarms. AIDev has no commit timestamps, so "later" means "another commit".
+Counts are per distinct line text per file per PR, summed over all of the PR's commits, so commit order
+(which AIDev does not record) does not matter. A line flag is *undone* when the PR removes that text from the
+file at least as many times as it adds it (no added copy survives). A scope flag is *undone* when the PR's
+commits cancel out on that file: every line text is added and removed equally often. Undone flags are a proxy
+for "a reviewer, CI or the agent corrected it"; a merged PR where none of a check's flags were undone counts as
+one false alarm for that check.
 
 Usage: python eval_scan.py <AIDev dir> <out.json> [--sample N] [--seed S]
 """
@@ -44,11 +46,10 @@ for row in t.to_pylist():
         pr[pid] = row
 need &= set(pr)
 
-added = collections.defaultdict(lambda: collections.defaultdict(set))  # (pid, path) -> hash(line) -> shas
-removed = collections.defaultdict(lambda: collections.defaultdict(set))
+added = collections.defaultdict(collections.Counter)  # (pid, path) -> hash(line) -> times added in the PR
+removed = collections.defaultdict(collections.Counter)
 files = collections.defaultdict(dict)  # pid -> path -> status (first seen)
-flags = []  # (pid, path, rule, hash(line), sha)
-code_added = collections.Counter()  # pid -> added code lines (base rate)
+flags = set()  # (pid, path, rule, hash(line))
 t0 = time.time()
 pf = pq.ParquetFile(D / "pr_commit_details.parquet")
 cols = [c for c in ("pr_id", "sha", "filename", "status", "patch", "previous_filename") if c in pf.schema_arrow.names]
@@ -61,45 +62,41 @@ for g in range(pf.num_row_groups):
         fds = from_github_files([r])
         if not fds:
             continue
-        f, sha = fds[0], r["sha"]
+        f = fds[0]
         files[pid].setdefault(f.path, f.status)
         key = (pid, f.path)
         for _, ln in f.added:
-            added[key][hash(ln.strip())].add(sha)
+            added[key][hash(ln.strip())] += 1
         for _, ln in f.removed:
-            removed[key][hash(ln.strip())].add(sha)
+            removed[key][hash(ln.strip())] += 1
         if f.status == "deleted" or P.is_skipped(f.path, cfg.ignore):
             continue
-        if P.is_code(f.path):
-            code_added[pid] += sum(1 for _, ln in f.added if ln.strip())
         text = dict(f.added)
         for rule in RULES:
             if rule.applies(f.path):
                 for no, *_ in rule.hits(f.path, f.added):
-                    flags.append((pid, f.path, rule.id, hash(text.get(no, "").strip()), sha))
+                    flags.add((pid, f.path, rule.id, hash(text.get(no, "").strip())))
     if g % 20 == 0:
         print(g, pf.num_row_groups, len(flags), round(time.time() - t0), flush=True)
 
 
-def undone_line(pid, path, h, sha):
-    return bool(removed[(pid, path)].get(h, set()) - {sha})
+def undone_line(pid, path, h):
+    return removed[(pid, path)][h] >= added[(pid, path)][h] > 0
 
 
 def undone_file(pid, path):
     ad, rm = added[(pid, path)], removed[(pid, path)]
-    if not ad and not rm:
-        return False
-    return all(rm.get(h, set()) - s for h, s in ad.items()) and all(ad.get(h, set()) - s for h, s in rm.items())
+    return bool(ad or rm) and ad == rm
 
 
-# Base rate: share of added code lines that another commit in the same PR removes.
+# Line baseline, same unit and label as a line flag: distinct added code-line texts per file per PR.
 base_n = base_u = 0
 for (pid, path), ad in added.items():
     if not P.is_code(path) or P.is_skipped(path, cfg.ignore):
         continue
-    for h, s in ad.items():
+    for h in ad:
         base_n += 1
-        base_u += bool(removed[(pid, path)].get(h, set()) - s)
+        base_u += undone_line(pid, path, h)
 
 # File base rate: share of changed files whose whole change another commit in the same PR reverts.
 fbase_n = fbase_u = 0
@@ -121,16 +118,11 @@ def wilson(k, n, z=1.96):
 
 by = collections.defaultdict(lambda: {"flags": 0, "undone": 0, "survived_merged": 0, "prs": set()})
 pr_any = collections.defaultdict(lambda: [False, False])  # pid -> [flagged, any flag undone] for default-on rules
-seen = set()
-for pid, path, rule, h, sha in flags:
-    k = (pid, path, rule, h)
-    if k in seen:
-        continue
-    seen.add(k)
+for pid, path, rule, h in sorted(flags):
     b = by[rule]
     b["flags"] += 1
     b["prs"].add(pid)
-    u = undone_line(pid, path, h, sha)
+    u = undone_line(pid, path, h)
     b["undone"] += u
     pr_any[(rule, pid)][0] = True
     pr_any[(rule, pid)][1] |= u
@@ -175,11 +167,12 @@ out = {
             "undone_rate": round(b["undone"] / max(b["flags"], 1), 4),
             "undone_ci95": wilson(b["undone"], b["flags"]),
             "prs_with_undone_flag": sum(v[1] for (rr, _), v in pr_any.items() if rr == r),
-            "prs_all_flags_survived_merged": sum(
+            "prs_all_flags_survived_merged": (fa := sum(
                 1 for (rr, p), v in pr_any.items() if rr == r and not v[1] and pr[p]["merged_at"]
-            ),
+            )),
+            "false_alarm_prs_per_100_prs": round(100 * fa / max(n, 1), 2),
             "flags_per_100_prs": round(100 * b["flags"] / max(n, 1), 2),
-            "false_alarms_per_100_prs": round(100 * b["survived_merged"] / max(n, 1), 2),
+            "surviving_flags_on_merged_per_100_prs": round(100 * b["survived_merged"] / max(n, 1), 2),
         }
         for r, b in sorted(by.items())
     },
