@@ -40,3 +40,9 @@ def test_content_that_looks_like_headers():
     q, plain = parse_diff(text)
     assert q.path == "q.sql" and q.removed == [(1, "-- old comment"), (2, "x")] and q.added == [(1, "++ count;"), (2, "y")]
     assert plain.path == "plain.py" and plain.added == [(1, "b")]
+
+
+def test_unicode_line_separator_inside_a_line():
+    text = "diff --git a/a.js b/a.js\n--- a/a.js\n+++ b/a.js\n@@ -0,0 +1,2 @@\n+s = 'x\u2028y';\n+eval(s);\n"
+    (f,) = parse_diff(text)
+    assert f.added == [(1, "s = 'x\u2028y';"), (2, "eval(s);")]
