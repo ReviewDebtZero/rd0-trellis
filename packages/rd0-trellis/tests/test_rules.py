@@ -107,3 +107,13 @@ def test_bad_config_is_reported():
         Config.from_toml('[[rule]]\nid = "x"\npattern = "("\n')
     with pytest.raises(ValueError):
         Config.from_toml('[trellis.rules]\nscope = "loud"\n')
+
+
+def test_scope_honours_ignore_and_protected_renames():
+    cfg = Config.from_toml('[trellis]\nignore = ["docs/**"]\n[trellis.scope]\nprotect = ["src/generated/**"]')
+    files = parse_diff(
+        diff_for("docs/SUMMARY.md", ["# notes"], new=True)
+        + "diff --git a/src/generated/api.ts b/src/api.ts\nsimilarity index 100%\n"
+        "rename from src/generated/api.ts\nrename to src/api.ts\n"
+    )
+    assert [f.path for f in scan(files, "", cfg)] == ["src/api.ts"]

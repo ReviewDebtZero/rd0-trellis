@@ -293,9 +293,11 @@ def scope_findings(files: list, pr_text: str, config: Config) -> list:
 
     for f in files:
         p = f.path
-        if P.matches(p, config.scope_allow):
+        if P.matches(p, config.scope_allow) or P.matches(p, config.ignore):
             continue
-        if config.scope_protect and P.matches(p, config.scope_protect):
+        if config.scope_protect and (
+            P.matches(p, config.scope_protect) or (f.old_path and P.matches(f.old_path, config.scope_protect))
+        ):
             add(f, "This path is protected in `trellis.toml`; PRs should not change it.",
                 "Revert the change to this file, or ask a maintainer to change it.")
             continue
@@ -331,7 +333,7 @@ def scope_findings(files: list, pr_text: str, config: Config) -> list:
         flagged = {x.path for x in out}
         for f in files:
             p = f.path
-            if p in flagged or p in named_hits or P.matches(p, config.scope_allow):
+            if p in flagged or p in named_hits or P.matches(p, config.scope_allow) or P.matches(p, config.ignore):
                 continue
             if p.split("/", 1)[0] in tops or re.search(r"(^|/)(tests?|__tests__|spec)(/|$)|[._-](test|spec)\.", p):
                 continue
