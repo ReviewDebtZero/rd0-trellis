@@ -12,6 +12,7 @@ from .diff import from_github_files, parse_diff
 from .engine import ratchet, scan
 from .github import GitHub, parse_pr_ref
 from .report import markdown, text_findings, text_ratchet
+from .rules import scope_findings
 
 
 def _git_diff(base: str | None) -> str:
@@ -64,15 +65,18 @@ def cmd_scan(a) -> int:
 
 
 def cmd_check(a) -> int:
-    files, _, _ = load_target(a.target, a.base, "", "")
+    files, text, label = load_target(a.target, a.base, a.title, a.body)
     config = _config(a)
     root = a.root or (None if a.target and parse_pr_ref(a.target) else ".")
     counts = ratchet(files, config, root=root if root and os.path.isdir(root) else None)
+    scope = [f for f in scope_findings(files, text, config) if f.level == "error"]
     if a.json:
-        print(json.dumps({"rules": [rc.to_dict() for rc in counts]}, indent=2))
+        print(json.dumps({"rules": [rc.to_dict() for rc in counts], "scope": [f.to_dict() for f in scope]}, indent=2))
     else:
         print(text_ratchet(counts))
-    return 1 if any(rc.failed for rc in counts) else 0
+        if scope:
+            print(text_findings(scope, label))
+    return 1 if scope or any(rc.failed for rc in counts) else 0
 
 
 def cmd_audit(a) -> int:
@@ -108,12 +112,12 @@ def main(argv=None) -> int:
                                                  "(default: local `git diff HEAD`)")
         c.add_argument("--base", help="with no target, diff BASE...HEAD instead of the working tree")
         c.add_argument("--config", help="path to trellis.toml (default: ./trellis.toml if present)")
+        c.add_argument("--title", default="", help="PR title, for the scope check on local diffs")
+        c.add_argument("--body", default="", help="PR description, for the scope check on local diffs")
 
     s = sub.add_parser("scan", help="flag agent slop in a PR: scope creep, workaround comments, bare suppressions, "
                                     "commented-out code, custom rules")
     target_args(s)
-    s.add_argument("--title", default="", help="PR title, for the scope check on local diffs")
-    s.add_argument("--body", default="", help="PR description, for the scope check on local diffs")
     s.add_argument("--format", choices=["text", "json", "markdown"], default="text")
     s.add_argument("--json", dest="format", action="store_const", const="json")
     s.add_argument("--strict", action="store_true", help="exit 1 on any finding, not only error-level ones")
@@ -133,8 +137,6 @@ def main(argv=None) -> int:
     au.set_defaults(fn=cmd_audit)
 
     a = p.parse_args(argv)
-    if getattr(a, "title", None) is None:
-        a.title = ""
     return a.fn(a)
 
 

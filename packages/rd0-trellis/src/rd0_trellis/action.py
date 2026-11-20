@@ -39,7 +39,8 @@ def run(event: dict, gh: GitHub, config_path: str = "", comment: bool = True):
     text = f"{pr.get('title') or ''}\n{pr.get('body') or ''}"
     findings = scan(files, text, config)
     counts = ratchet(files, config)
-    failed = any(rc.failed for rc in counts)
+    # Scope findings are per file, not counted, so an `error` scope finding fails on its own.
+    failed = any(rc.failed for rc in counts) or any(f.rule == "scope" and f.level == "error" for f in findings)
     old = [c for c in gh.pages(f"/issues/{number}/comments", 300) if _ours(c)]
     if not findings and not failed and not old:
         return None, False

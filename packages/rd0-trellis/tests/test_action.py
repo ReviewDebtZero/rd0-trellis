@@ -51,3 +51,8 @@ def test_ignores_marker_pasted_by_a_person():
     gh = FakeGH(BAD, comments=[{"id": 3, "body": MARKER, "user": {"type": "User"}}])
     action.run(EVENT, gh)
     assert gh.posted[0][:2] == ("POST", "/issues/7/comments")
+
+
+def test_error_scope_fails():
+    gh = FakeGH(BAD, config='[trellis.rules]\nscope = "error"\n[trellis.scope]\nprotect = ["src/**"]\n')
+    assert action.run(EVENT, gh)[1] is True

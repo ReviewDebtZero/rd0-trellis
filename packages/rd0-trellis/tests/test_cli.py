@@ -31,3 +31,8 @@ def test_audit(capsys, tmp_path):
     assert main(["audit", os.path.join(EXAMPLES, "repo"), "--write", str(tmp_path)]) == 0
     assert "13 rules" in capsys.readouterr().out
     assert (tmp_path / "trellis.toml.trellis").exists()
+
+
+def test_check_fails_on_error_scope(tmp_path):
+    (tmp_path / "t.toml").write_text('[trellis.rules]\nscope = "error"\n[trellis.scope]\nprotect = ["src/renderer/**"]\n')
+    assert main(["check", DIFF, "--config", str(tmp_path / "t.toml")]) == 1
