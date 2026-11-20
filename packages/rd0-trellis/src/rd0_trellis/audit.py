@@ -335,6 +335,7 @@ class Configs:
     importlinter: str = ""
     trellis: str = ""
     trellis_in_ci: bool = False
+    trellis_levels: dict = field(default_factory=dict)
     langs: list = field(default_factory=list)
 
     def ruff_on(self, code: str) -> bool:
@@ -353,10 +354,6 @@ def _eslint_on(text: str, rule: str) -> bool:
         if m.group(2) not in ("off", "0"):
             return True
     return not keyed and rule in text
-
-
-def _trellis_off(text: str, rule: str) -> bool:
-    return bool(re.search(rf"""^\s*["']?{re.escape(rule)}["']?\s*=\s*["']off["']""", text, re.MULTILINE))
 
 
 def _ruff_from(d: dict, cfg: Configs):
@@ -409,7 +406,13 @@ def read_configs(paths: list, read) -> Configs:
             if "importlinter" in t:
                 cfg.importlinter += "\n" + t
         if os.path.basename(p) in ("trellis.toml", ".trellis.toml"):
-            cfg.trellis += "\n" + (read(p) or "")
+            t = read(p) or ""
+            cfg.trellis += "\n" + t
+            try:
+                rules = tomllib.loads(t).get("trellis", {}).get("rules", {})
+                cfg.trellis_levels.update({k: v for k, v in rules.items() if isinstance(v, str)})
+            except Exception:
+                pass
         if p.startswith(".github/workflows/"):
             t = read(p) or ""
             if "rd0-trellis" in t or "rd0_trellis" in t:
@@ -564,7 +567,7 @@ def classify(text: str, cfg: Configs, em: _Emitter) -> tuple:
             lang = "py" if langs == ["py"] else "js"
             tool, rule = (ESLINT_MAP_PY if lang == "py" else ESLINT_MAP_JS)[rule]
         if tool == "trellis":
-            enforced = cfg.trellis_in_ci and not _trellis_off(cfg.trellis, rule)
+            enforced = cfg.trellis_in_ci and cfg.trellis_levels.get(rule) != "off"
             if not enforced:
                 em.trellis_builtins.add(rule)
         elif tool == "eslint":
