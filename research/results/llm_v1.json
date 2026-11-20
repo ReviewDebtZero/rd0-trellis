@@ -4,10 +4,11 @@
   "merged": 612,
   "max_chars": 14000,
   "base_rate_line_undone": 0.1127,
-  "tokens_in": 2921983,
-  "tokens_out": 252478,
-  "mean_seconds": 1.59,
-  "guard_cost_usd": 8.369,
+  "tokens_in": 2982571,
+  "tokens_out": 259739,
+  "calls": 875,
+  "mean_seconds": 1.6,
+  "guard_cost_usd": 8.563,
   "guard_prices_per_mtok": [
     2.0,
     10.0
