@@ -459,7 +459,17 @@ class _Emitter:
                 objs.append({"rules": rules})
             # A later flat-config object replaces a rule's options for its files, so each scoped
             # no-restricted-imports block repeats the repo-wide banned packages.
+            # Boundaries on the same directory are merged into one block for the same reason.
+            merged = {}
             for o in self.eslint_scoped:
+                key = tuple(o["files"])
+                if key in merged:
+                    merged[key]["rules"]["no-restricted-imports"][1]["patterns"] += (
+                        o["rules"]["no-restricted-imports"][1]["patterns"]
+                    )
+                else:
+                    merged[key] = o
+            for o in merged.values():
                 opts = o["rules"]["no-restricted-imports"][1]
                 if self.eslint_imports and "paths" not in opts:
                     opts["paths"] = self.eslint_imports

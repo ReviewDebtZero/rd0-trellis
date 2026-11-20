@@ -63,3 +63,11 @@ def test_disabled_rules_are_not_enforced(tmp_path):
                                         "- Do not leave commented-out code.\n")
     status = {i.rule: i.status for i in audit(str(tmp_path)).items}
     assert status == {"no-console": "enforceable", "eqeqeq": "enforced", "commented-out-code": "enforceable"}
+
+
+def test_boundaries_on_one_directory_merge(tmp_path):
+    (tmp_path / "package.json").write_text("{}")
+    (tmp_path / "AGENTS.md").write_text("- Never import from `src/main` in `src/renderer`.\n"
+                                        "- Never import from `src/server` in `src/renderer`.\n")
+    js = audit(str(tmp_path)).emitted["eslint.config.js"]
+    assert js.count('"files"') == 1 and "src/main" in js and "src/server" in js
