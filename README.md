@@ -160,6 +160,12 @@ Two of the eight checks pass. The others are useful as warnings in your own term
 they are too noisy to post on every PR by default. AIDev has no commit timestamps, so "another commit" stands in
 for "a later commit". Scripts and raw results are in [`research/`](research/README.md).
 
+We also ran `trellis audit` on 300 randomly sampled AIDev repositories that are not forks. Of the 295 we could
+read, 135 had an agent-instruction file, and 61 of the 134 with extractable rules had at least one rule that
+nothing enforced and that Trellis could turn into a check. The most common were keeping PRs in scope, banning
+`any`, and explaining CI changes. Most extracted lines (98.4%) are judgment calls, because the extractor treats
+every bullet as a rule.
+
 ## What Trellis does not do (yet)
 
 - **Regex, not syntax.** `[[rule]]` patterns match text on added lines. Use ESLint, Ruff or ast-grep for

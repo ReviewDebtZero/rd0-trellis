@@ -16,6 +16,11 @@ GITHUB_TOKEN=... python research/experiments/eval_v1/eval_audit.py ~/aidev resea
 
 `eval_scan.py` peaks at about 12 GB of RAM on 12,000 PRs and takes about 12 minutes. 30,000 PRs needs more than 30 GB.
 
+## Paper
+
+`paper/tooldemo/main.tex` is a short tool-demo/workshop draft. Every number in it comes from
+`paper/generated/numbers.tex`, which `make -C research/paper` rebuilds from `results/`. See `paper/CLAIMS.md`.
+
 ## Definitions
 
 - **Baseline:** the share of all added code lines that another commit removes (`base_rate_line_undone`), and the
