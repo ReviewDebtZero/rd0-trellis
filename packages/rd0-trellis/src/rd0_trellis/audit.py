@@ -12,6 +12,7 @@ import sys
 from dataclasses import dataclass, field
 
 from . import paths as P
+from .config import CONFIG_FILES
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -406,19 +407,22 @@ def read_configs(paths: list, read) -> Configs:
             if "importlinter" in t:
                 cfg.importlinter += "\n" + t
         if os.path.basename(p) in ("trellis.toml", ".trellis.toml"):
-            t = read(p) or ""
-            cfg.trellis += "\n" + t
-            try:
-                rules = tomllib.loads(t).get("trellis", {}).get("rules", {})
-                cfg.trellis_levels.update({k: v for k, v in rules.items() if isinstance(v, str)})
-            except Exception:
-                pass
+            cfg.trellis += "\n" + (read(p) or "")
         if p.startswith(".github/workflows/"):
             t = read(p) or ""
             if "rd0-trellis" in t or "rd0_trellis" in t:
                 cfg.trellis_in_ci = True
             if "ruff" in t and not cfg.has_ruff:
                 cfg.has_ruff = True
+    # Rule levels come from the one config trellis itself loads (first of CONFIG_FILES), not nested ones.
+    for name in CONFIG_FILES:
+        if name in paths:
+            try:
+                rules = tomllib.loads(read(name) or "").get("trellis", {}).get("rules", {})
+                cfg.trellis_levels = {k: v for k, v in rules.items() if isinstance(v, str)}
+            except Exception:
+                pass
+            break
     if cfg.has_ruff and not ruff_config_found:
         cfg.ruff_select += RUFF_DEFAULT
     return cfg

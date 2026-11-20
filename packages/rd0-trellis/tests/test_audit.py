@@ -79,3 +79,14 @@ def test_ruff_select_semantics(tmp_path):
     assert {i.rule: i.status for i in audit(str(tmp_path)).items} == {"E722": "enforced", "T201": "enforced"}
     (tmp_path / "ruff.toml").write_text("[lint]\nselect = []\n")
     assert {i.status for i in audit(str(tmp_path)).items} == {"enforceable"}
+
+
+def test_nested_trellis_toml_does_not_override_root_levels(tmp_path):
+    (tmp_path / "trellis.toml").write_text('[trellis.rules]\ncommented-out-code = "off"\n')
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "trellis.toml").write_text('[trellis.rules]\ncommented-out-code = "warn"\n')
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "t.yml").write_text("uses: harshuljain13/rd0-trellis@main\n")
+    (tmp_path / "AGENTS.md").write_text("- Do not leave commented-out code.\n")
+    assert [i.status for i in audit(str(tmp_path)).items] == ["enforceable"]
