@@ -29,3 +29,14 @@ def test_rename_and_delete():
 def test_from_github_files():
     (f,) = from_github_files([{"filename": "src/a.ts", "status": "added", "patch": "@@ -0,0 +1 @@\n+const a = 1;"}])
     assert f.path == "src/a.ts" and f.is_new and f.added == [(1, "const a = 1;")]
+
+
+def test_content_that_looks_like_headers():
+    text = (
+        "diff --git a/q.sql b/q.sql\n--- a/q.sql\n+++ b/q.sql\n@@ -1,2 +1,2 @@\n"
+        "--- old comment\n+++ count;\n-x\n+y\n"
+        "--- a/plain.py\n+++ b/plain.py\n@@ -1 +1 @@\n-a\n+b\n"
+    )
+    q, plain = parse_diff(text)
+    assert q.path == "q.sql" and q.removed == [(1, "-- old comment"), (2, "x")] and q.added == [(1, "++ count;"), (2, "y")]
+    assert plain.path == "plain.py" and plain.added == [(1, "b")]
