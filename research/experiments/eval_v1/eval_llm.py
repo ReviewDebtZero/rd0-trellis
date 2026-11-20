@@ -237,6 +237,7 @@ def score(flags, prs):
     n = len(prs)
     by = collections.defaultdict(lambda: {"flags": 0, "undone": 0})
     per_pr = collections.defaultdict(lambda: [False, False])
+    by["ALL"]  # always report the total, even with no flags
     for pid, path, cat, line in flags:
         if pid not in prs:
             continue
