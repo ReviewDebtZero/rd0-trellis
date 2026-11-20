@@ -345,6 +345,20 @@ class Configs:
         return any(s == "ALL" or code.startswith(s) for s in self.ruff_select)
 
 
+def _eslint_on(text: str, rule: str) -> bool:
+    """True if `rule` is configured at a level other than off/0. A bare mention (e.g. an AST selector) counts."""
+    keyed = False
+    for m in re.finditer(rf"""["']?{re.escape(rule)}["']?\s*:\s*\[?\s*(["']?)([\w-]+)\1""", text):
+        keyed = True
+        if m.group(2) not in ("off", "0"):
+            return True
+    return not keyed and rule in text
+
+
+def _trellis_off(text: str, rule: str) -> bool:
+    return bool(re.search(rf"""^\s*["']?{re.escape(rule)}["']?\s*=\s*["']off["']""", text, re.MULTILINE))
+
+
 def _ruff_from(d: dict, cfg: Configs):
     lint = d.get("lint", {})
     for src in (d, lint):
@@ -500,7 +514,7 @@ def classify(text: str, cfg: Configs, em: _Emitter) -> tuple:
         jsish = "js" in langs or "/" in target or "/" in where
         if jsish:
             key = f"{where}->{target}"
-            enforced = "no-restricted-imports" in cfg.eslint and target.strip("/*") in cfg.eslint
+            enforced = _eslint_on(cfg.eslint, "no-restricted-imports") and target.strip("/*") in cfg.eslint
             if not enforced:
                 em.eslint_scoped.append({
                     "files": [where.rstrip("/") + "/**"],
@@ -536,12 +550,12 @@ def classify(text: str, cfg: Configs, em: _Emitter) -> tuple:
             lang = "py" if langs == ["py"] else "js"
             tool, rule = (ESLINT_MAP_PY if lang == "py" else ESLINT_MAP_JS)[rule]
         if tool == "trellis":
-            enforced = cfg.trellis_in_ci and f'{rule} = "off"' not in cfg.trellis
+            enforced = cfg.trellis_in_ci and not _trellis_off(cfg.trellis, rule)
             if not enforced:
                 em.trellis_builtins.add(rule)
         elif tool == "eslint":
             needle = "TSEnumDeclaration" if t.key.endswith(":enum") else rule
-            enforced = needle in cfg.eslint
+            enforced = _eslint_on(cfg.eslint, needle)
             if not enforced:
                 if t.key.endswith(":enum"):
                     em.eslint_syntax.append({"selector": "TSEnumDeclaration", "message": text[:200]})
@@ -572,7 +586,7 @@ def classify(text: str, cfg: Configs, em: _Emitter) -> tuple:
 def _ban_import(name, text, cfg, em):
     langs = _module_lang(name, cfg.langs)
     if "js" in langs:
-        enforced = "no-restricted-imports" in cfg.eslint and name in cfg.eslint
+        enforced = _eslint_on(cfg.eslint, "no-restricted-imports") and name in cfg.eslint
         if not enforced:
             em.eslint_imports.append({"name": name, "message": text[:200]})
         return ("enforced" if enforced else "enforceable", "eslint", "no-restricted-imports", f"ban import {name}", {})

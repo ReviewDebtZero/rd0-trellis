@@ -50,3 +50,16 @@ def test_extract_rules_skips_code_and_headings():
 def test_no_instruction_files(tmp_path):
     r = audit(str(tmp_path))
     assert r.items == [] and "No agent instruction files" in r.headline()
+
+
+def test_disabled_rules_are_not_enforced(tmp_path):
+    (tmp_path / "package.json").write_text("{}")
+    (tmp_path / "eslint.config.js").write_text("export default [{ rules: { 'no-console': 'off', eqeqeq: ['error'] } }];")
+    (tmp_path / "trellis.toml").write_text("[trellis.rules]\ncommented-out-code='off'\n")
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "t.yml").write_text("uses: harshuljain13/rd0-trellis@main\n")
+    (tmp_path / "AGENTS.md").write_text("- Never use console.log.\n- Always use strict equality (===).\n"
+                                        "- Do not leave commented-out code.\n")
+    status = {i.rule: i.status for i in audit(str(tmp_path)).items}
+    assert status == {"no-console": "enforceable", "eqeqeq": "enforced", "commented-out-code": "enforceable"}
