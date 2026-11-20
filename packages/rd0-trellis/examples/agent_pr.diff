@@ -2,7 +2,7 @@ diff --git a/src/renderer/Settings.tsx b/src/renderer/Settings.tsx
 index 1111111..2222222 100644
 --- a/src/renderer/Settings.tsx
 +++ b/src/renderer/Settings.tsx
-@@ -1,6 +1,14 @@
+@@ -1,6 +1,13 @@
  import { useState } from "react";
 +import { useEffect } from "react";
  
@@ -20,7 +20,7 @@ diff --git a/package-lock.json b/package-lock.json
 index 3333333..4444444 100644
 --- a/package-lock.json
 +++ b/package-lock.json
-@@ -10,3 +10,3 @@
+@@ -10 +10 @@
 -      "version": "1.2.3",
 +      "version": "1.2.4",
 diff --git a/IMPLEMENTATION_SUMMARY.md b/IMPLEMENTATION_SUMMARY.md
