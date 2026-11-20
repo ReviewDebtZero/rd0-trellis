@@ -361,9 +361,14 @@ def _trellis_off(text: str, rule: str) -> bool:
 
 def _ruff_from(d: dict, cfg: Configs):
     lint = d.get("lint", {})
+    select = None
     for src in (d, lint):
-        cfg.ruff_select += src.get("select", []) + src.get("extend-select", [])
+        if "select" in src:
+            select = list(src["select"])
+        cfg.ruff_select += src.get("extend-select", [])
         cfg.ruff_ignore += src.get("ignore", []) + src.get("extend-ignore", [])
+    # Like ruff: an explicit `select` (even empty) replaces the defaults; `extend-select` adds to them.
+    cfg.ruff_select += RUFF_DEFAULT if select is None else select
 
 
 def read_configs(paths: list, read) -> Configs:
@@ -376,7 +381,7 @@ def read_configs(paths: list, read) -> Configs:
         if base in ("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt") or P.ext(p) == ".py":
             langs.add("py")
     cfg.langs = sorted(langs)
-    selected_found = False
+    ruff_config_found = False
     for p in paths:
         if ESLINT_FILES.search(p):
             t = read(p) or ""
@@ -395,9 +400,8 @@ def read_configs(paths: list, read) -> Configs:
             if d is not None:
                 cfg.has_ruff = True
                 cfg.ruff_text += "\n" + t
-                before = len(cfg.ruff_select)
                 _ruff_from(d, cfg)
-                selected_found |= len(cfg.ruff_select) > before
+                ruff_config_found = True
             if "importlinter" in t:
                 cfg.importlinter += "\n" + t
         elif IMPORTLINTER_FILES.search(p):
@@ -412,7 +416,7 @@ def read_configs(paths: list, read) -> Configs:
                 cfg.trellis_in_ci = True
             if "ruff" in t and not cfg.has_ruff:
                 cfg.has_ruff = True
-    if cfg.has_ruff and not selected_found:
+    if cfg.has_ruff and not ruff_config_found:
         cfg.ruff_select += RUFF_DEFAULT
     return cfg
 

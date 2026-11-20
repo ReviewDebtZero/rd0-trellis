@@ -71,3 +71,11 @@ def test_boundaries_on_one_directory_merge(tmp_path):
                                         "- Never import from `src/server` in `src/renderer`.\n")
     js = audit(str(tmp_path)).emitted["eslint.config.js"]
     assert js.count('"files"') == 1 and "src/main" in js and "src/server" in js
+
+
+def test_ruff_select_semantics(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("- No bare except.\n- Never use `print()`.\n")
+    (tmp_path / "ruff.toml").write_text('[lint]\nextend-select = ["T20"]\n')
+    assert {i.rule: i.status for i in audit(str(tmp_path)).items} == {"E722": "enforced", "T201": "enforced"}
+    (tmp_path / "ruff.toml").write_text("[lint]\nselect = []\n")
+    assert {i.status for i in audit(str(tmp_path)).items} == {"enforceable"}
