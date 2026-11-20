@@ -1,0 +1,16 @@
+# Example trellis.toml. Built-in rules are on at "warn"; set any rule to "off", "warn" or "error".
+[trellis.rules]
+commented-out-code = "warn"
+
+[trellis.scope]
+# Paths a PR should never change.
+protect = ["src/generated/**"]
+
+[[rule]]
+id = "no-useeffect"
+pattern = '\buseEffect\s*\('
+paths = ["src/**/*.tsx"]
+message = "Product code does not call useEffect (AGENTS.md)."
+fix = "Use the useSyncedState hook from src/hooks, or derive the value during render."
+level = "error"
+evidence = ["https://github.com/example/app/pull/812#discussion_r1", "https://github.com/example/app/pull/840#discussion_r2"]

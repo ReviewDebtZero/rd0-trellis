@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The package declares requires-python >=3.9, so test the floor and the ceiling.
+        # setup-python has no 3.9 build for ubuntu-latest, so the floor pins an older runner.
+        include:
+          - python-version: "3.9"
+            os: ubuntu-22.04
+          - python-version: "3.13"
+            os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install "./packages/rd0-trellis[dev]"
+      - name: Tests
+        run: python -m pytest -q
+        working-directory: packages/rd0-trellis
+      - name: CLI smoke test
+        working-directory: packages/rd0-trellis
+        run: |
+          trellis audit examples/repo
+          trellis scan examples/agent_pr.diff --title "Load theme from prefs"
+          # The example diff adds a call that examples/trellis.toml bans at `error`, so check must fail.
+          if trellis check examples/agent_pr.diff --config examples/trellis.toml; then
+            echo "expected trellis check to fail" && exit 1
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install ruff
+      - run: ruff check .
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install build twine
+      - name: Build sdist and wheel
+        run: python -m build
+        working-directory: packages/rd0-trellis
+      - name: Check metadata
+        run: twine check dist/*
+        working-directory: packages/rd0-trellis
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: packages/rd0-trellis/dist/*

@@ -1,0 +1,9 @@
+# Repo-wide lint settings, pinned explicitly so results do not drift with the ruff version.
+line-length = 120
+extend-exclude = [".venv"]
+
+# The package declares requires-python >=3.9; without this ruff suggests APIs that do not exist there.
+target-version = "py39"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "SIM", "C4", "PIE", "FURB", "PLW", "UP"]

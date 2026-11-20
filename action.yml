@@ -1,0 +1,33 @@
+name: Trellis
+description: Flag agent-PR slop (scope creep, workaround comments, bare suppressions, commented-out code) and ratchet your own rules. No LLM, no API keys.
+branding:
+  icon: git-pull-request
+  color: green
+inputs:
+  github-token:
+    description: Token used to read the PR and post one comment
+    default: ${{ github.token }}
+  config:
+    description: Path to trellis.toml in the base branch. Empty = trellis.toml, .trellis.toml or .github/trellis.toml
+    default: ""
+  comment:
+    description: Post (and keep editing) one PR comment. "false" = print to the log only
+    default: "true"
+  fail-on:
+    description: '"error" fails the check when a rule set to `error` got worse in this PR; "never" only comments'
+    default: "error"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - shell: bash
+      run: pip install --quiet "${{ github.action_path }}/packages/rd0-trellis"
+    - shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        INPUT_COMMENT: ${{ inputs.comment }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+      run: python -m rd0_trellis.action

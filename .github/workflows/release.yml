@@ -1,0 +1,53 @@
+name: release
+
+# Publishes rd0-trellis to PyPI. Never runs on its own: either you push a v* tag or
+# you trigger it by hand. Uses PyPI Trusted Publishing, so there is no API token
+# stored in this repository.
+#
+# One-time setup before the first run, at https://pypi.org/manage/account/publishing/
+#   PyPI project name : rd0-trellis
+#   Owner             : harshuljain13
+#   Repository        : rd0-trellis
+#   Workflow          : release.yml
+#   Environment       : pypi-rd0-trellis  <- create this under Settings > Environments
+#
+# Use the *pending publisher* form: the project does not exist on PyPI yet, and
+# a pending publisher creates it on the first successful run.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi-rd0-trellis
+    permissions:
+      id-token: write # required for Trusted Publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip install build twine
+      - name: Build
+        run: python -m build
+        working-directory: packages/rd0-trellis
+      - name: Check metadata
+        run: twine check dist/*
+        working-directory: packages/rd0-trellis
+
+      # Install the built wheel somewhere clean and run the suite against it, so
+      # a broken artifact cannot reach PyPI.
+      - name: Verify the artifact
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install packages/rd0-trellis/dist/*.whl pytest
+          cd /tmp && tar -xzf "$GITHUB_WORKSPACE"/packages/rd0-trellis/dist/*.tar.gz
+          cd /tmp/rd0_trellis-* && /tmp/v/bin/python -m pytest -q
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/rd0-trellis/dist
