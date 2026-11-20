@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="assets/banner.svg" alt="rd0/trellis — stop reviewing the same mistake twice" width="100%">
+</p>
+
+<p align="center">
   <b>Trellis stops your team from reviewing the same mistake twice.</b><br>
   <sub>The second tool in <b>rd0</b> — review debt, to zero. The first is <a href="https://github.com/harshuljain13/rd0-jinx">Jinx</a>.</sub>
 </p>
@@ -30,6 +34,12 @@ agent twice, don't add another line of prose; put the fix into the code, a lint 
 Trellis is the deterministic half that runs in CI.
 
 ## See it work
+
+<p align="center">
+  <img src="assets/demo.gif" alt="Animated terminal: trellis audit reports 13 AGENTS.md rules, 1 enforced, 9 checkable; trellis scan flags 6 problems in an agent PR, each with a fix" width="100%">
+  <br>
+  <sub>Real output on <a href="packages/rd0-trellis/examples">packages/rd0-trellis/examples</a>. Rebuild with <a href="assets/video/README.md">assets/video</a>.</sub>
+</p>
 
 ```console
 $ uvx rd0-trellis audit .

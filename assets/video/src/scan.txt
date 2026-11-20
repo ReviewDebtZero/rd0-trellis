@@ -1,0 +1,13 @@
+examples/agent_pr.diff: 6 finding(s).
+  WARN  IMPLEMENTATION_SUMMARY.md  [scope] A new document nobody asked for (agents often leave summaries and notes in the repo).
+        fix: Delete it and put the explanation in the PR description.
+  WARN  package-lock.json  [scope] The lockfile changed but `package.json` did not, and the PR does not mention dependencies.
+        fix: Revert this file. Re-run the install only when you change dependencies on purpose.
+  WARN  src/renderer/Settings.tsx:6  [bare-suppression] `eslint-disable` has no reason.
+        fix: Fix the underlying error. If it is a false positive, name the exact rule or code and say why (e.g. `// eslint-disable-next-line no-console -- CLI output`).
+  WARN  src/renderer/Settings.tsx:8  [workaround-comment] This comment excuses a workaround ("Workaround").
+        fix: Fix the cause instead. If the workaround must stay, link an issue that tracks removing it; if agents keep writing it, ban the pattern with a rule.
+  ERROR src/renderer/Settings.tsx:9  [no-useeffect] Product code does not call useEffect (AGENTS.md).
+        fix: Use the useSyncedState hook from src/hooks, or derive the value during render.
+  WARN  src/renderer/Settings.tsx:10  [commented-out-code] 2 line(s) of commented-out code.
+        fix: Delete it. Git keeps the history; if it is needed later, restore it from the log.

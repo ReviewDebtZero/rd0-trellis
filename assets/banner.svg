@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img"
+     aria-label="rd0/trellis: stop reviewing the same mistake twice. Trellis turns AGENTS.md rules and agent-PR slop into CI checks.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1023"/><stop offset="0.55" stop-color="#11203a"/><stop offset="1" stop-color="#0c2a2a"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.12" cy="0.1" r="0.6"><stop offset="0" stop-color="#22c55e" stop-opacity="0.35"/><stop offset="1" stop-color="#22c55e" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowB" cx="0.92" cy="0.95" r="0.55"><stop offset="0" stop-color="#60a5fa" stop-opacity="0.35"/><stop offset="1" stop-color="#60a5fa" stop-opacity="0"/></radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
+    <pattern id="lattice" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0H40M0 0V40" stroke="#34d399" stroke-opacity="0.10" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <rect width="1280" height="400" fill="url(#glowA)"/>
+  <rect width="1280" height="400" fill="url(#glowB)"/>
+  <rect x="760" width="520" height="400" fill="url(#lattice)"/>
+  <text x="80" y="120" font-family="DejaVu Sans Mono, Menlo, monospace" font-size="30" fill="#94a3b8">rd0/</text>
+  <text x="80" y="200" font-family="Inter, DejaVu Sans, Helvetica, sans-serif" font-size="92" font-weight="800" fill="url(#title)">trellis</text>
+  <text x="82" y="258" font-family="Inter, DejaVu Sans, Helvetica, sans-serif" font-size="32" fill="#f8fafc">Stop reviewing the same mistake twice.</text>
+  <text x="82" y="302" font-family="Inter, DejaVu Sans, Helvetica, sans-serif" font-size="22" fill="#cbd5e1">AGENTS.md rules and agent-PR slop, turned into CI checks.</text>
+  <text x="82" y="334" font-family="Inter, DejaVu Sans, Helvetica, sans-serif" font-size="22" fill="#cbd5e1">No LLM, no API key.</text>
+  <g font-family="DejaVu Sans Mono, Menlo, monospace" font-size="19">
+    <rect x="830" y="92" width="380" height="216" rx="16" fill="#0b1220" fill-opacity="0.92" stroke="#334155" stroke-width="2"/>
+    <text x="856" y="134" fill="#34d399">$ <tspan fill="#e2e8f0">trellis audit .</tspan></text>
+    <text x="856" y="170" fill="#e2e8f0">13 rules</text>
+    <text x="856" y="202" fill="#86efac">  1 enforced</text>
+    <text x="856" y="234" fill="#fde68a">  9 could be checked</text>
+    <text x="856" y="266" fill="#94a3b8">  3 judgment calls</text>
+  </g>
+</svg>
