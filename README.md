@@ -160,19 +160,20 @@ Two of the eight checks pass. The others are useful as warnings in your own term
 they are too noisy to post on every PR by default. AIDev does not record commit order, so changes are summed
 over each PR's commits. Scripts and raw results are in [`research/`](research/README.md).
 
-**Is an LLM reviewer better?** We asked Claude Haiku (`claude-haiku-5-5`, thinking off) to review 875 PRs from the
-same sample whose patches fit in 14,000 characters, so both reviewers saw the same full input (622 merged). It was
+**Is an LLM reviewer better?** We asked Claude Haiku (`claude-haiku-5-5`, thinking off) to review 862 PRs from the
+same sample whose patches fit in 14,000 characters, so both reviewers saw the same full input (612 merged). Replies that
+were not valid JSON (13 of 875) were excluded. It was
 told the eight Trellis issue classes plus "any other defect", and scored by the same rules.
 
 | Reviewer | PRs flagged | Flags per 100 PRs | Undone | False alarms per 100 PRs |
 |---|---:|---:|---:|---:|
 | Trellis, the two passing checks | 2% | 2.2 | 15.8% (3 of 19) | 0.8 |
-| Trellis, all eight checks | 18% | 36.3 | 5.0% | 11.1 |
-| Haiku, the same eight classes | 54% | 86.9 | 12.1% | 31.7 |
-| Haiku, all issues including bugs | 87% | 253.3 | 9.2% | 47.9 |
+| Trellis, all eight checks | 18% | 36.8 | 5.1% | 11.1 |
+| Haiku, the same eight classes | 55% | 88.2 | 12.1% | 32.1 |
+| Haiku, all issues including bugs | 88% | 257.1 | 9.2% | 48.6 |
 
 On this subset 11.3% of added code lines are undone anyway, so neither reviewer predicts corrections much better
-than chance. The difference is noise: Haiku comments on most PRs, and on 48 of every 100 none of its comments led to
+than chance. The difference is noise: Haiku comments on most PRs, and on 49 of every 100 none of its comments led to
 a change. It used about 3,700 tokens and 1.6 seconds per PR; Trellis is free, offline and deterministic. Haiku can
 raise logic bugs that Trellis cannot, and this proxy measures that poorly. Trellis is a quiet first filter, not a
 replacement for review.
