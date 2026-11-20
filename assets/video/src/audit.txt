@@ -1,0 +1,9 @@
+AGENTS.md: 13 rules. 1 enforced by a check, 9 could be (10 of 13 are checkable), 3 are judgment calls.
+
+Not enforced, but a check can do it (9):
+  AGENTS.md:5  Do not use `any`. Model the type or use `unknown`.  [eslint: @typescript-eslint/no-explicit-any]
+  AGENTS.md:6  Prefer named exports. Avoid default exports.  [eslint: import/no-default-export]
+  AGENTS.md:7  Use `useSyncedState` instead of `useEffect` for derived state.  [trellis: no-useeffect]
+  AGENTS.md:8  Never import from `src/main` in `src/renderer`.  [eslint: no-restricted-imports]
+  AGENTS.md:9  Don't add the `lodash` package; use the standard library.  [eslint: no-restricted-imports]
+  AGENTS.md:10  Do not leave commented-out code.  [trellis: commented-out-code]

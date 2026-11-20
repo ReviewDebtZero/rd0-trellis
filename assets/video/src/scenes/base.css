@@ -1,0 +1,13 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0b1023;color:#f8fafc;font-family:Inter,"DejaVu Sans",Helvetica,Arial,sans-serif}
+.bg{position:absolute;inset:0;background:radial-gradient(900px 600px at 12% 8%,rgba(99,102,241,.45),transparent 70%),radial-gradient(900px 600px at 92% 95%,rgba(20,184,166,.35),transparent 70%),linear-gradient(135deg,#0b1023,#151a3d 55%,#0c2a3a)}
+.dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1.5px,transparent 1.5px);background-size:32px 32px}
+.mono{font-family:"DejaVu Sans Mono",ui-monospace,monospace}
+.grad{background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;color:transparent}
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-160px)}to{opacity:1;transform:none}}
+@keyframes inR{from{opacity:0;transform:translateX(160px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.85)}70%{opacity:1;transform:scale(1.03)}100%{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes out{to{opacity:0}}
+.a{opacity:0;animation-fill-mode:forwards;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
