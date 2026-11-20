@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rd0-trellis"
+version = "0.1.0"
+description = "Trellis: stop reviewing the same mistake twice. Turns AGENTS.md rules and agent-PR slop into CI checks. Part of rd0, a toolkit for review debt."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["tomli>=1.1; python_version < '3.11'"]
+keywords = [
+  "code-review",
+  "review-debt",
+  "coding-agents",
+  "agents-md",
+  "lint",
+  "ratchet",
+  "github-action",
+  "static-analysis",
+]
+authors = [{ name = "Harshul Jain" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Version Control :: Git",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/harshuljain13/rd0-trellis"
+Source = "https://github.com/harshuljain13/rd0-trellis"
+Issues = "https://github.com/harshuljain13/rd0-trellis/issues"
+Changelog = "https://github.com/harshuljain13/rd0-trellis/releases"
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+trellis = "rd0_trellis.cli:main"
+# Lets `uvx rd0-trellis audit` work without --from.
+rd0-trellis = "rd0_trellis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rd0_trellis = ["py.typed"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]

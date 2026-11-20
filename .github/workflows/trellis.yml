@@ -1,0 +1,17 @@
+# Example workflow for a repository that wants Trellis comments on new PRs.
+name: trellis
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited]
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Other repos use `harshuljain13/rd0-trellis@main` (or a release tag) and skip the checkout.
+      # Here the action is this repo, so check out the base branch (never the PR's code) to run it.
+      - uses: actions/checkout@v4
+      - uses: ./

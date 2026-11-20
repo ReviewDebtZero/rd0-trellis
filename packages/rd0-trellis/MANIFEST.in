@@ -1,0 +1,3 @@
+# The sdist ships the tests, so it must also ship what they read.
+recursive-include tests *.py *.diff *.json *.md *.toml
+recursive-include examples *.diff *.json *.md *.toml *.js
