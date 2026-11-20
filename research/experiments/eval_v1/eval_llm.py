@@ -194,19 +194,21 @@ done = [p for p in chosen if p in cache]
 
 
 def parse(raw):
+    """Issues list, or None when the reply is not a valid {"issues": [...]} object."""
     m = re.search(r"\{.*\}", raw, re.DOTALL)
     try:
-        return json.loads(m.group(0)).get("issues", []) if m else []
+        issues = json.loads(m.group(0)).get("issues") if m else None
     except (json.JSONDecodeError, AttributeError):
-        return []
+        return None
+    return issues if isinstance(issues, list) else None
 
 
-llm_flags, unmatched, bad_json = set(), 0, 0
+parsed = {p: parse(cache[p]["raw"]) for p in done}
+bad_json = sum(v is None for v in parsed.values())
+done = [p for p in done if parsed[p] is not None]  # a failed review is not a clean review
+llm_flags, unmatched = set(), 0
 for pid in done:
-    raw = cache[pid]["raw"]
-    if not re.search(r"\{.*\}", raw, re.DOTALL):
-        bad_json += 1
-    for it in parse(raw):
+    for it in parsed[pid]:
         if not isinstance(it, dict):
             continue
         cat, path, line = it.get("category"), it.get("path"), it.get("line")
