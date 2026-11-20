@@ -151,24 +151,29 @@ client = anthropic.Anthropic(default_headers={"anthropic-workspace-id": os.envir
 
 
 def call(pid):
+    text = prompt(pid)
+    reserve = (len(text) / 2 * a.price_in + 1000 * a.price_out) / 1e6  # worst case, held until the reply arrives
     with lock:
-        if spent[0] >= a.budget:
+        if spent[0] + reserve > a.budget:
             return None
+        spent[0] += reserve
     for attempt in range(5):
         try:
             t = time.time()
             m = client.messages.create(model=a.model, max_tokens=1000, system=SYSTEM, thinking={"type": "disabled"},
-                                       messages=[{"role": "user", "content": prompt(pid)}])
+                                       messages=[{"role": "user", "content": text}])
             break
         except (anthropic.RateLimitError, anthropic.APIConnectionError, anthropic.InternalServerError):
             time.sleep(5 * 2**attempt)
     else:
+        with lock:
+            spent[0] -= reserve
         return None
     txt = "".join(b.text for b in m.content if b.type == "text")
     d = {"pid": pid, "in": m.usage.input_tokens, "out": m.usage.output_tokens, "sec": round(time.time() - t, 2),
          "raw": txt}
     with lock:
-        spent[0] += (d["in"] * a.price_in + d["out"] * a.price_out) / 1e6
+        spent[0] += (d["in"] * a.price_in + d["out"] * a.price_out) / 1e6 - reserve
         cache[pid] = d
         with cache_path.open("a") as fh:
             fh.write(json.dumps(d) + "\n")
