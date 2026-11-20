@@ -24,6 +24,11 @@ def load_config(gh: GitHub, ref: str, path: str = "") -> Config:
     return Config()
 
 
+def _ours(c: dict) -> bool:
+    """Only a bot comment carrying the marker is Trellis's; anyone can paste the marker into their own."""
+    return (c.get("user") or {}).get("type") == "Bot" and MARKER in (c.get("body") or "")
+
+
 def run(event: dict, gh: GitHub, config_path: str = "", comment: bool = True):
     """Returns (comment body or None, failed)."""
     pr = event["pull_request"]
@@ -35,7 +40,7 @@ def run(event: dict, gh: GitHub, config_path: str = "", comment: bool = True):
     findings = scan(files, text, config)
     counts = ratchet(files, config)
     failed = any(rc.failed for rc in counts)
-    old = [c for c in gh.pages(f"/issues/{number}/comments", 300) if MARKER in (c.get("body") or "")]
+    old = [c for c in gh.pages(f"/issues/{number}/comments", 300) if _ours(c)]
     if not findings and not failed and not old:
         return None, False
     body = markdown(findings, counts)
