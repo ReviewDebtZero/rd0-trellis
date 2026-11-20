@@ -258,7 +258,7 @@ def score(flags, prs):
 
 prs = set(done)
 tin, tout = sum(cache[p]["in"] for p in done), sum(cache[p]["out"] for p in done)
-base = [undone(p, path, ln) for (p, path), ad in added.items() if p in prs and P.is_code(path) for ln in ad]
+base = [undone(p, path, ln) for (p, path), ad in added.items() if p in prs and P.is_code(path) and not P.is_skipped(path, cfg.ignore) for ln in ad]
 res = {
     "model": a.model, "prs": len(done), "merged": sum(bool(pr[p]["merged_at"]) for p in done),
     "max_chars": a.max_chars, "base_rate_line_undone": round(sum(base) / max(len(base), 1), 4),
