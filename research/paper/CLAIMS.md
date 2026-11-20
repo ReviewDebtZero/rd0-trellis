@@ -14,3 +14,6 @@ Every number in the paper comes from a file below. Numbers in the LaTeX come fro
 | Repos with an unenforced, checkable rule | 61 of 134 | same -> `repos_with_unenforced_checkable_rule` |
 | Single-commit PRs are 40% of AIDev | 145,185 of 359,738 | `pr_commits.parquet`, PRs with one commit |
 | Few substantive human review comments repeat in a repo | 2.6% | panel research review (not re-run here; see CHECKLIST.md) |
+| LLM baseline: PRs / merged / max patch chars / line baseline | 875 / 622 / 14,000 / 11.3% | `results/llm_v1.json` -> `prs`, `merged`, `max_chars`, `base_rate_line_undone` |
+| LLM vs Trellis: PRs flagged, flags/100, undone, FA/100 | Table 2 | same -> `groups.*` |
+| Haiku tokens per PR and seconds per PR | 3.7k / 1.6 s | same -> `tokens_in`, `tokens_out`, `mean_seconds` |

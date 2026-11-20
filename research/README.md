@@ -6,11 +6,13 @@ Data: [AIDev](https://huggingface.co/datasets/hao-li/AIDev) (`pull_request`, `pr
 | Script | Output | What it measures |
 |---|---|---|
 | `experiments/eval_v1/eval_scan.py` | `results/scan_v1.json` | `trellis scan` on every commit of 12,000 sampled agent PRs with 2 or more commits (seed 0). Line counts are summed over all of a PR's commits, per distinct line text per file. A line flag is *undone* when the PR removes that text from the file at least as often as it adds it. A file flag is *undone* when the PR's changes to the file cancel out. |
+| `experiments/eval_v1/eval_llm.py` | `results/llm_v1.json` | Claude Haiku as an LLM reviewer vs `trellis scan` on the same PRs from the scan sample whose patches fit in 14,000 characters (875 PRs). Same scoring. Flags must quote a line the PR added. Responses are cached next to the output; `--budget` stops the run before the estimated spend exceeds it (default $9, priced conservatively at $2/$10 per million tokens). |
 | `experiments/eval_v1/eval_audit.py` | `results/audit_v1.json` | `trellis audit` on randomly sampled non-fork AIDev repositories, read from the GitHub API. |
 
 ```bash
 pip install -e "packages/rd0-trellis" pyarrow
 python research/experiments/eval_v1/eval_scan.py ~/aidev research/results/scan_v1.json --sample 12000
+ANTHROPIC_API_KEY=... python research/experiments/eval_v1/eval_llm.py ~/aidev research/results/llm_v1.json --n 1000 --budget 8.5
 GITHUB_TOKEN=... python research/experiments/eval_v1/eval_audit.py ~/aidev research/results/audit_v1.json --sample 300
 ```
 
@@ -38,3 +40,4 @@ GITHUB_TOKEN=... python research/experiments/eval_v1/eval_audit.py ~/aidev resea
 - Being undone is a proxy for being corrected. A line can also be rewritten during ordinary iteration, which is
   why each rate is compared with the baseline.
 - PRs with one commit (40% of AIDev) cannot show a correction and are excluded.
+- The LLM baseline is one model with one prompt, on smaller PRs only. Its cost is reported as tokens, not dollars.

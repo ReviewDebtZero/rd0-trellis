@@ -60,4 +60,27 @@ for k, r in rows:
           f"[{100 * lo:.1f}, {100 * hi:.1f}] & {fa(r):.1f} & {'pass' if ok(r) else 'fail'} \\\\\n")
 t += "\\bottomrule\\end{tabular}\n"
 (OUT / "tab_scan.tex").write_text(t)
+
+L = json.loads((RES / "llm_v1.json").read_text()) if (RES / "llm_v1.json").exists() else None
+if L:
+    m += macro("lPRs", f"{L['prs']:,}") + macro("lMerged", f"{L['merged']:,}") + macro("lMaxChars", f"{L['max_chars']:,}")
+    m += macro("lBase", f"{100 * L['base_rate_line_undone']:.1f}") + macro("lSec", f"{L['mean_seconds']:.1f}")
+    m += macro("lTokIn", f"{L['tokens_in'] / 1e6:.2f}M") + macro("lTokOut", f"{L['tokens_out'] / 1e6:.2f}M")
+    m += macro("lTokPerPR", f"{(L['tokens_in'] + L['tokens_out']) / L['prs'] / 1e3:.1f}k")
+    LG = [("trellis_passing_two", "TrTwo", "Trellis, the two passing checks"),
+          ("trellis_all", "TrAll", "Trellis, all eight checks"),
+          ("llm_trellis_classes", "LlmSame", "Haiku, the same eight classes"),
+          ("llm_all", "LlmAll", "Haiku, all issues incl.\\ bugs")]
+    t = "\\begin{tabular}{lrrrr}\\toprule\nReviewer & PRs flagged \\% & Flags/100 & Undone \\% & FA/100 \\\\\\midrule\n"
+    for g, tag, name in LG:
+        r = L["groups"][g]
+        pct = 100 * r["prs_flagged"] / L["prs"]
+        m += macro(f"l{tag}Pct", f"{pct:.0f}") + macro(f"l{tag}Flags", f"{r['flags_per_100_prs']:.1f}")
+        m += macro(f"l{tag}Undone", f"{100 * r['undone_rate']:.1f}") + macro(f"l{tag}Fa", f"{r['false_alarm_prs_per_100_prs']:.1f}")
+        m += macro(f"l{tag}N", f"{r['flags']:,}")
+        t += (f"{name} & {pct:.0f} & {r['flags_per_100_prs']:.1f} & {100 * r['undone_rate']:.1f} "
+              f"& {r['false_alarm_prs_per_100_prs']:.1f} \\\\\n")
+    t += "\\bottomrule\\end{tabular}\n"
+    (OUT / "tab_llm.tex").write_text(t)
+(OUT / "numbers.tex").write_text(m)
 print(m)
