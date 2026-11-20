@@ -134,11 +134,34 @@ Prefer a native rule (ESLint, Ruff, import-linter, a type) when one exists: it u
 editor already shows it. Use `[[rule]]` for the house rules no linter knows about. See
 [`docs/USERS_GUIDE.md`](docs/USERS_GUIDE.md) for every option, the CLI and the Python API.
 
+## Does it catch anything?
+
+We replayed `trellis scan` on 11,996 agent PRs from [AIDev](https://huggingface.co/datasets/hao-li/AIDev). Each had
+at least two commits, and 8,211 were merged. A flag counts as **undone** when another commit in the same PR removes
+the flagged line (or reverts the flagged file). This means someone, such as a reviewer, CI or the agent, corrected
+it. A **false alarm** is a merged PR where none of that check's flags were ever undone. This overstates false
+alarms: some surviving flags were real problems the team chose to accept. The pass bar was fixed before the run:
+at least 5% undone and at most 3 false alarms per 100 PRs.
+
+For comparison, another commit removes 7.8% of all added code lines and reverts 2.6% of all changed files.
+
+| Check | Flags per 100 PRs | Undone [95% CI] | False alarms per 100 PRs | Verdict |
+|---|---:|---:|---:|---|
+| New summary/notes document | 9.0 | 13.7% [11.8, 15.9] | 1.6 | **pass** (5x file baseline) |
+| Suppression with no reason | 26.6 | 10.3% [9.3, 11.4] | 2.4 | **pass** |
+| Workaround comment | 20.6 | 14.0% [12.7, 15.4] | 4.5 | too noisy |
+| Commented-out code | 105.3 | 11.0% [10.5, 11.5] | 5.7 | too noisy |
+| Lockfile without manifest | 5.1 | 3.6% [2.4, 5.4] | 2.6 | too few undone |
+| `.gitignore` change | 10.0 | 2.7% [1.9, 3.7] | 4.0 | no better than baseline |
+| CI config change | 29.8 | 1.9% [1.5, 2.4] | 2.7 | below baseline |
+| File outside the paths the PR names | 812.7 | 3.1% [3.0, 3.2] | 16.8 | far too noisy |
+
+Two of the eight checks pass. The others are useful as warnings in your own terminal, but on these numbers
+they are too noisy to post on every PR by default. AIDev has no commit timestamps, so "another commit" stands in
+for "a later commit". Scripts and raw results are in [`research/`](research/README.md).
+
 ## What Trellis does not do (yet)
 
-- **No benchmark yet.** Jinx ships with one; Trellis's evaluation on [AIDev](https://huggingface.co/datasets/hao-li/AIDev)
-  (how often a flagged line was later changed in the same PR, and false alarms per 100 PRs) is the next PR.
-  Until then, treat the built-in checks as heuristics: they warn and never fail a PR.
 - **Regex, not syntax.** `[[rule]]` patterns match text on added lines. Use ESLint, Ruff or ast-grep for
   anything that needs the syntax tree.
 - **Audit is pattern-based.** It recognizes about 35 common rule shapes, plus import bans and directory boundaries; anything else is reported as a
@@ -163,6 +186,7 @@ editor already shows it. Use `[[rule]]` for the house rules no linter knows abou
 packages/rd0-trellis/   the installable library, CLI, tests and examples
 docs/                   user guide
 action.yml              the GitHub Action (must stay at the root)
+research/               AIDev evaluation scripts and results
 ```
 
 Dev: `pip install -e "./packages/rd0-trellis[dev]"` then `cd packages/rd0-trellis && python -m pytest -q`.

@@ -1,0 +1,130 @@
+{
+  "prs": 11996,
+  "merged": 8211,
+  "base_rate_line_undone": 0.0776,
+  "base_lines": 9151582,
+  "base_rate_file_reverted": 0.0258,
+  "base_files": 463599,
+  "agents": {
+    "OpenAI_Codex": 1066,
+    "Cursor": 379,
+    "Devin": 369,
+    "Claude_Code": 5125,
+    "Google_Jules": 87,
+    "Copilot": 4970
+  },
+  "rules": {
+    "bare-suppression": {
+      "flags": 3186,
+      "prs_flagged": 607,
+      "undone": 328,
+      "undone_rate": 0.103,
+      "undone_ci95": [
+        0.0929,
+        0.114
+      ],
+      "prs_with_undone_flag": 116,
+      "prs_all_flags_survived_merged": 289,
+      "flags_per_100_prs": 26.56,
+      "false_alarms_per_100_prs": 14.96
+    },
+    "commented-out-code": {
+      "flags": 12635,
+      "prs_flagged": 1366,
+      "undone": 1388,
+      "undone_rate": 0.1099,
+      "undone_ci95": [
+        0.1045,
+        0.1154
+      ],
+      "prs_with_undone_flag": 243,
+      "prs_all_flags_survived_merged": 681,
+      "flags_per_100_prs": 105.33,
+      "false_alarms_per_100_prs": 49.8
+    },
+    "scope:ci": {
+      "flags": 3576,
+      "prs_flagged": 572,
+      "undone": 67,
+      "undone_rate": 0.0187,
+      "undone_ci95": [
+        0.0148,
+        0.0237
+      ],
+      "prs_with_undone_flag": 10,
+      "prs_all_flags_survived_merged": 328,
+      "flags_per_100_prs": 29.81,
+      "false_alarms_per_100_prs": 13.09
+    },
+    "scope:gitignore": {
+      "flags": 1204,
+      "prs_flagged": 903,
+      "undone": 32,
+      "undone_rate": 0.0266,
+      "undone_ci95": [
+        0.0189,
+        0.0373
+      ],
+      "prs_with_undone_flag": 31,
+      "prs_all_flags_survived_merged": 476,
+      "flags_per_100_prs": 10.04,
+      "false_alarms_per_100_prs": 5.38
+    },
+    "scope:lockfile": {
+      "flags": 609,
+      "prs_flagged": 516,
+      "undone": 22,
+      "undone_rate": 0.0361,
+      "undone_ci95": [
+        0.024,
+        0.0541
+      ],
+      "prs_with_undone_flag": 20,
+      "prs_all_flags_survived_merged": 308,
+      "flags_per_100_prs": 5.08,
+      "false_alarms_per_100_prs": 3.03
+    },
+    "scope:new-doc": {
+      "flags": 1075,
+      "prs_flagged": 420,
+      "undone": 147,
+      "undone_rate": 0.1367,
+      "undone_ci95": [
+        0.1175,
+        0.1586
+      ],
+      "prs_with_undone_flag": 66,
+      "prs_all_flags_survived_merged": 196,
+      "flags_per_100_prs": 8.96,
+      "false_alarms_per_100_prs": 3.74
+    },
+    "scope:unrelated": {
+      "flags": 97491,
+      "prs_flagged": 3385,
+      "undone": 3015,
+      "undone_rate": 0.0309,
+      "undone_ci95": [
+        0.0299,
+        0.032
+      ],
+      "prs_with_undone_flag": 422,
+      "prs_all_flags_survived_merged": 2015,
+      "flags_per_100_prs": 812.7,
+      "false_alarms_per_100_prs": 454.62
+    },
+    "workaround-comment": {
+      "flags": 2469,
+      "prs_flagged": 1109,
+      "undone": 345,
+      "undone_rate": 0.1397,
+      "undone_ci95": [
+        0.1266,
+        0.154
+      ],
+      "prs_with_undone_flag": 209,
+      "prs_all_flags_survived_merged": 537,
+      "flags_per_100_prs": 20.58,
+      "false_alarms_per_100_prs": 10.01
+    }
+  }
+}
