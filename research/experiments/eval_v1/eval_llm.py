@@ -57,6 +57,11 @@ for row in pq.read_table(D / "pull_request.parquet", columns=["id", "title", "bo
     if str(row["id"]) in need:
         pr[str(row["id"])] = row
 
+meta = {"model": a.model, "seed": a.seed, "pool": a.pool, "n": a.n, "max_chars": a.max_chars}
+meta_path = Path(a.out + ".meta.json")
+if meta_path.exists() and json.loads(meta_path.read_text()) != meta:
+    raise SystemExit(f"{meta_path} was made with other settings; use another output path")
+meta_path.write_text(json.dumps(meta))
 recs_path = Path(a.out + ".recs.json")
 if recs_path.exists():
     recs = json.loads(recs_path.read_text())
