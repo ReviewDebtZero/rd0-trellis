@@ -205,6 +205,7 @@ def parse(raw):
 
 parsed = {p: parse(cache[p]["raw"]) for p in done}
 bad_json = sum(v is None for v in parsed.values())
+called = list(done)  # billed, including replies dropped below
 done = [p for p in done if parsed[p] is not None]  # a failed review is not a clean review
 llm_flags, unmatched = set(), 0
 for pid in done:
@@ -258,12 +259,13 @@ def score(flags, prs):
 
 
 prs = set(done)
-tin, tout = sum(cache[p]["in"] for p in done), sum(cache[p]["out"] for p in done)
+tin, tout = sum(cache[p]["in"] for p in called), sum(cache[p]["out"] for p in called)
 base = [undone(p, path, ln) for (p, path), ad in added.items() if p in prs and P.is_code(path) and not P.is_skipped(path, cfg.ignore) for ln in ad]
 res = {
     "model": a.model, "prs": len(done), "merged": sum(bool(pr[p]["merged_at"]) for p in done),
     "max_chars": a.max_chars, "base_rate_line_undone": round(sum(base) / max(len(base), 1), 4),
-    "tokens_in": tin, "tokens_out": tout, "mean_seconds": round(sum(cache[p]["sec"] for p in done) / max(len(done), 1), 2),
+    "tokens_in": tin, "tokens_out": tout, "calls": len(called),
+    "mean_seconds": round(sum(cache[p]["sec"] for p in called) / max(len(called), 1), 2),
     "guard_cost_usd": round((tin * a.price_in + tout * a.price_out) / 1e6, 3),
     "guard_prices_per_mtok": [a.price_in, a.price_out], "llm_unmatched_flags": unmatched, "llm_no_json": bad_json,
     "trellis": score(trellis_flags, prs), "llm": score(llm_flags, prs),

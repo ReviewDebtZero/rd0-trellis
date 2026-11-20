@@ -66,7 +66,7 @@ if L:
     m += macro("lPRs", f"{L['prs']:,}") + macro("lMerged", f"{L['merged']:,}") + macro("lMaxChars", f"{L['max_chars']:,}")
     m += macro("lBase", f"{100 * L['base_rate_line_undone']:.1f}") + macro("lSec", f"{L['mean_seconds']:.1f}")
     m += macro("lTokIn", f"{L['tokens_in'] / 1e6:.2f}M") + macro("lTokOut", f"{L['tokens_out'] / 1e6:.2f}M")
-    m += macro("lTokPerPR", f"{(L['tokens_in'] + L['tokens_out']) / L['prs'] / 1e3:.1f}k")
+    m += macro("lTokPerPR", f"{(L['tokens_in'] + L['tokens_out']) / L.get('calls', L['prs']) / 1e3:.1f}k")
     LG = [("trellis_passing_two", "TrTwo", "Trellis, the two passing checks"),
           ("trellis_all", "TrAll", "Trellis, all eight checks"),
           ("llm_trellis_classes", "LlmSame", "Haiku, the same eight classes"),
