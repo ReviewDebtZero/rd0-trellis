@@ -38,7 +38,7 @@ def parse_diff(text: str) -> list[FileDiff]:
     old_no = new_no = old_left = new_left = 0
     seen_hunk = False
     # split("\n"), not splitlines(): source lines may contain U+2028, \x0c and other separators.
-    for raw in (ln[:-1] if ln.endswith("\r") else ln for ln in text.split("\n")):
+    for raw in (ln.removesuffix("\r") for ln in text.split("\n")):
         if cur is not None and (old_left > 0 or new_left > 0):
             tag = raw[:1]
             if tag == "+":
