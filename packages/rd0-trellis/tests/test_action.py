@@ -13,6 +13,9 @@ class FakeGH:
             return self.comments
         return []
 
+    def whoami(self):
+        return "pat-owner"
+
     def read(self, path, ref=None):
         return self.config if path == "trellis.toml" else None
 
@@ -56,3 +59,9 @@ def test_ignores_marker_pasted_by_a_person():
 def test_error_scope_fails():
     gh = FakeGH(BAD, config='[trellis.rules]\nscope = "error"\n[trellis.scope]\nprotect = ["src/**"]\n')
     assert action.run(EVENT, gh)[1] is True
+
+
+def test_edits_own_comment_posted_with_a_personal_token():
+    gh = FakeGH(BAD, comments=[{"id": 4, "body": MARKER, "user": {"type": "User", "login": "pat-owner"}}])
+    action.run(EVENT, gh)
+    assert gh.posted[0][:2] == ("PATCH", "/issues/comments/4")

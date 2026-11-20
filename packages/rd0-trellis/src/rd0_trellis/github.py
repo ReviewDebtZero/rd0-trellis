@@ -45,6 +45,13 @@ class GitHub:
         raw = self._req(method, f"{API}/repos/{self.repo}{path}", body)
         return json.loads(raw or b"null")
 
+    def whoami(self) -> str:
+        """Login of the token's user, or "" (the Actions GITHUB_TOKEN cannot read /user)."""
+        try:
+            return (json.loads(self._req("GET", f"{API}/user", None) or b"null") or {}).get("login") or ""
+        except Exception:
+            return ""
+
     def pages(self, path: str, limit: int):
         out, page = [], 1
         while len(out) < limit:

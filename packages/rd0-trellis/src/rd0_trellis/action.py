@@ -24,9 +24,13 @@ def load_config(gh: GitHub, ref: str, path: str = "") -> Config:
     return Config()
 
 
-def _ours(c: dict) -> bool:
-    """Only a bot comment carrying the marker is Trellis's; anyone can paste the marker into their own."""
-    return (c.get("user") or {}).get("type") == "Bot" and MARKER in (c.get("body") or "")
+def _ours(c: dict, me: str) -> bool:
+    """A marker comment by a bot, or by the token's own user (a personal access token). Anyone else can
+    paste the marker into their own comment, so it alone is not enough."""
+    if MARKER not in (c.get("body") or ""):
+        return False
+    user = c.get("user") or {}
+    return user.get("type") == "Bot" or (bool(me) and user.get("login") == me)
 
 
 def run(event: dict, gh: GitHub, config_path: str = "", comment: bool = True):
@@ -41,7 +45,9 @@ def run(event: dict, gh: GitHub, config_path: str = "", comment: bool = True):
     counts = ratchet(files, config)
     # Scope findings are per file, not counted, so an `error` scope finding fails on its own.
     failed = any(rc.failed for rc in counts) or any(f.rule == "scope" and f.level == "error" for f in findings)
-    old = [c for c in gh.pages(f"/issues/{number}/comments", 300) if _ours(c)]
+    marked = [c for c in gh.pages(f"/issues/{number}/comments", 300) if MARKER in (c.get("body") or "")]
+    me = gh.whoami() if any((c.get("user") or {}).get("type") != "Bot" for c in marked) else ""
+    old = [c for c in marked if _ours(c, me)]
     if not findings and not failed and not old:
         return None, False
     body = markdown(findings, counts)
