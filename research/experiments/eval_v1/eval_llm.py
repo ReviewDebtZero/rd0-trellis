@@ -217,7 +217,9 @@ for pid in done:
             unmatched += 1
             continue
         if line:
-            line = str(line).lstrip("+").strip()
+            line = str(line).strip()
+            if not added[(pid, path)][line] and line.startswith("+") and added[(pid, path)][line[1:].strip()]:
+                line = line[1:].strip()  # model kept the diff marker
             if not added[(pid, path)][line]:
                 unmatched += 1
                 continue
