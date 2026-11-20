@@ -133,6 +133,8 @@ editor already shows it. Use `[[rule]]` for the house rules no linter knows abou
   anything that needs the syntax tree.
 - **Audit is pattern-based.** It recognizes about 35 common rule shapes, plus import bans and directory boundaries; anything else is reported as a
   judgment call, not guessed at. No LLM.
+- **Audit reads config repo-wide.** A lint rule enabled in any package's config counts as enforced for the
+  whole repository; per-package coverage in monorepos is not modeled yet.
 - **No mining yet.** Turning repeated review comments into draft rules (`trellis mine`) is planned.
 
 ## How it works
