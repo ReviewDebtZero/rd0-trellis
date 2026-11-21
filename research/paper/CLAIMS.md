@@ -17,3 +17,4 @@ Every number in the paper comes from a file below. Numbers in the LaTeX come fro
 | LLM baseline: PRs / merged / max patch chars / line baseline | 862 / 612 / 14,000 / 11.3% | `results/llm_v1.json` -> `prs`, `merged`, `max_chars`, `base_rate_line_undone` |
 | LLM vs Trellis: PRs flagged, flags/100, undone, FA/100 | Table 2 | same -> `groups.*` |
 | Haiku tokens per PR and seconds per PR | 3.7k / 1.6 s | same -> `tokens_in`, `tokens_out`, `mean_seconds` |
+| Figures 2-4 (workshop paper) | plotted values | `scripts/make_figs.py` reads `results/scan_v1.json`, `results/llm_v1.json`, `results/audit_v1.json` |

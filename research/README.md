@@ -20,8 +20,13 @@ GITHUB_TOKEN=... python research/experiments/eval_v1/eval_audit.py ~/aidev resea
 
 ## Paper
 
-`paper/tooldemo/main.tex` is a short tool-demo/workshop draft. Every number in it comes from
-`paper/generated/numbers.tex`, which `make -C research/paper` rebuilds from `results/`. See `paper/CLAIMS.md`.
+Two drafts share `generated/` (numbers and tables from `scripts/make_numbers.py`) and `figures/` (plots from
+`scripts/make_figs.py`, which needs matplotlib):
+
+- `paper/workshop/main.tex`: 4-page workshop paper with RQ1-RQ3, the LLM-reviewer comparison and three figures.
+- `paper/tooldemo/main.tex`: 2-page tool-demo version.
+
+`make -C research/paper` rebuilds numbers, figures and both PDFs. `paper/CLAIMS.md` traces every number to a result file.
 
 ## Definitions
 
