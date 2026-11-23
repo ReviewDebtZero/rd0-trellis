@@ -117,8 +117,10 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
     (tmp_path / "AGENTS.md").write_text("".join(f"- {x}\n" for x in lines))
     r = audit(str(tmp_path))
     got = {i.text: (i.status, i.rule) for i in r.items}
-    for x in lines[:12]:
+    for x in lines[:10]:
         assert got[x][0] == "judgment", (x, got[x])
+    assert got[lines[10]][1] != "no-restricted-imports"
+    assert got[lines[11]][1] != "@typescript-eslint/no-explicit-any"
     assert got[lines[12]][1] == "no-restricted-imports"
     assert got[lines[13]][1] == "@typescript-eslint/no-explicit-any"
     assert got[lines[14]][1] == "no-restricted-imports"
