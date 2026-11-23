@@ -43,7 +43,10 @@ IMPORTLINTER_FILES = re.compile(r"(^|/)(\.importlinter|setup\.cfg|pyproject\.tom
 SKIP_DIRS = {".git", "node_modules", "vendor", "dist", "build", "__pycache__", ".venv", "venv", "third_party"}
 MAX_DEPTH = 4
 
-NEG = r"(?:never|don'?t|do not|avoid|no|must not|mustn'?t|should ?not|shouldn'?t|without|ban|forbid|disallow|stop)"
+NEG = r"\b(?:never|don'?t|do not|avoid|no|must not|mustn'?t|should ?not|shouldn'?t|without|ban|forbid|disallow|stop)\b"
+# Text between a negation and the thing it negates: stays inside one clause.
+CLAUSE = r"[^.;:!?\u2013\u2014]{0,30}"
+PY_HINT = re.compile(r"\bpython\b|\.py\b|\bdef \w|\b(?:dict|list|Optional)\[(?:(?:str|int|float|bool|bytes|Any)\b|[A-Z])|\b(?:mypy|pyright|pytest|noqa)\b|\b[EFW]\d{3}\b")
 DIRECTIVE = re.compile(
     r"\b(?:never|don'?t|do not|avoid|must not|mustn'?t|shouldn'?t|should not|always|must|prefer|only use|"
     r"instead of|rather than|forbidden|not allowed|disallow|banned|make sure|ensure|use)\b|^no\s",
@@ -74,7 +77,7 @@ def _t(key, tool, rule, lang, pattern, title):
 CATALOG = [
     # trellis built-ins: things no linter checks
     _t("trellis:commented-out-code", "trellis", "commented-out-code", "any",
-       r"commented[- ]out code|dead code", "no commented-out code"),
+       r"commented[- ]out code", "no commented-out code"),
     _t("trellis:bare-suppression", "trellis", "bare-suppression", "any",
        NEG + r".{0,40}(?:disabl|suppress|silenc|ignor)\w*.{0,30}(?:lint|eslint|rules?|warnings?|type errors?|checks?|"
        r"mypy|pyright|typescript)|" + NEG + r".{0,30}(?:noqa|eslint-disable|type: ?ignore)",
@@ -94,7 +97,7 @@ CATALOG = [
        "no stray summary or notes files"),
     _t("trellis:scope", "trellis", "scope", "any",
        r"keep (?:the )?(?:changes?|diffs?|prs?|edits?) (?:small|minimal|focused|scoped|tight)|unrelated (?:files|changes)|"
-       r"only (?:change|modify|touch|edit) (?:the )?(?:files|code|what)|minimal (?:changes|diffs?)|out of scope|scope creep|"
+       r"only (?:change|modify|touch|edit) (?:the )?(?:files|code|what)|minimal (?:changes|diffs?)|scope creep|"
        r"drive-by",
        "keep PRs in scope"),
     # ESLint / TypeScript
@@ -111,7 +114,7 @@ CATALOG = [
     _t("eslint:prefer-const", "eslint", "prefer-const", "js",
        r"(?:prefer|use) `?const`? (?:over|instead of|rather than|unless)", "prefer const"),
     _t("eslint:eqeqeq", "eslint", "eqeqeq", "js",
-       r"===|triple equals|strict equality|" + NEG + r".{0,30}(?:`==`|loose equality)", "strict equality"),
+       r"(?:use|prefer|always use|compare with) `?===|`===`.{0,30}(?:instead of|over|rather than|not)|triple equals|strict equality|" + NEG + r".{0,30}(?:`==`|loose equality)", "strict equality"),
     _t("eslint:no-eval", "eslint", "no-eval", "js", NEG + r".{0,30}\beval\b", "no eval"),
     _t("eslint:no-debugger", "eslint", "no-debugger", "js", NEG + r".{0,30}\bdebugger\b", "no debugger"),
     _t("eslint:import/no-default-export", "eslint", "import/no-default-export", "js",
@@ -151,11 +154,11 @@ INSTEAD = re.compile(
     re.IGNORECASE,
 )
 BANNED_IMPORT = re.compile(
-    NEG + r".{0,30}(?:import(?:ing)?|install(?:ing)?|add(?:ing)?|depend(?:ing)? on)\s+(?:the\s+)?`([^`]+)`|"
-    + NEG + r".{0,30}(?:use|using)\s+(?:the\s+)?`([^`]+)`\s+(?:library|package|module|dependency|lib|crate)",
+    NEG + r".{0,30}(?:import(?:ing)?|install(?:ing)?|depend(?:ing)? on)\s+(?:the\s+)?`([^`]+)`|"
+    + NEG + r".{0,30}(?:use|using|add|adding)\s+(?:the\s+)?`([^`]+)`\s+(?:as\s+an?\s+)?(?:library|package|module|dependency|lib|crate)\b(?!-)",
     re.IGNORECASE,
 )
-BANNED_NAME = re.compile(NEG + r".{0,30}(?:use|call|using|calling|add|write)\s+`([^`]+)`", re.IGNORECASE)
+BANNED_NAME = re.compile(NEG + CLAUSE + r"(?:use|call|using|calling|add|write)\s+`([^`]+)`", re.IGNORECASE)
 PROTECT = re.compile(
     NEG + r".{0,30}(?:edit|modify|change|touch|commit to|write to|update)\s+(?:files? (?:in|under)\s+)?(?:the\s+)?"
     r"`([^`]*/[^`]*|[^`\s]+\.\w{1,6})`",
@@ -566,6 +569,8 @@ def classify(text: str, cfg: Configs, em: _Emitter) -> tuple:
             continue
         if t.lang != "any" and langs and t.lang not in langs:
             continue
+        if t.lang == "js" and PY_HINT.search(text):
+            continue
         tool, rule = t.tool, t.rule
         if tool == "any":
             lang = "py" if langs == ["py"] else "js"
@@ -619,6 +624,8 @@ def _ban_import(name, text, cfg, em):
 
 def _ban(name, message, fix, text, cfg, em):
     name = name.strip()
+    if name.startswith(("-", "#")):  # a CLI flag or a compiler attribute, not something code imports or calls
+        return ("judgment", "", "", "", {})
     if re.match(r"^(?:@[\w-]+/)?[\w-]+(?:/[\w-]+)*$", name) and ("/" in name or "-" in name):
         return _ban_import(name, text, cfg, em)
     rid = "no-" + _slug(name)
