@@ -46,3 +46,11 @@ Two drafts share `generated/` (numbers and tables from `scripts/make_numbers.py`
   why each rate is compared with the baseline.
 - PRs with one commit (40% of AIDev) cannot show a correction and are excluded.
 - The LLM baseline is one model with one prompt, on smaller PRs only. Its cost is reported as tokens, not dollars.
+
+## audit_v2: 761 high-traffic repositories
+
+`experiments/audit_v2/`: `build_list.py` ranks AIDev repos with an agent PR that touched an instruction file
+by agent-PR count (`results/audit_v2/repo_list_top800.csv`); 761 of the top 800 still had instruction files.
+`run_audits.sh` sparse-clones only instruction and lint-config files and runs `trellis audit` locally, so it
+makes no REST calls. `aggregate.py` writes `summary.json`, `per_repo.csv` and `checkable.jsonl`.
+`precision_spotcheck.jsonl` is a single-annotator check of 120 checkable labels (58 correct); see `PLAN.md`.

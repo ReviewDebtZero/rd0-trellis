@@ -1,0 +1,8 @@
+{
+  "what": "The 120 audit_v2 spot-check items, matched by (repo, file, text) against audit_v3 checkable labels",
+  "classifier": "rd0-trellis at PR #5 commit 7bbd6e3",
+  "caveat": "audit_v3 re-cloned each repo, so a 'dropped' item may also mean the statement was edited upstream",
+  "label_was_wrong": {"dropped": 27, "relabeled": 9, "same_label": 26},
+  "label_was_right": {"dropped": 4, "same_label": 54},
+  "precision_of_unchanged_labels": "54/80"
+}

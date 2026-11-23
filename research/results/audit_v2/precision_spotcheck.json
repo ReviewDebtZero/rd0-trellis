@@ -1,0 +1,21 @@
+{
+  "annotator": "single annotator (Devin), not blinded; a two-person blinded audit is still pending",
+  "question": "Does the check Trellis maps this statement to test what the statement asks for?",
+  "sample": "random, seed 7, from results/audit_v2/checkable.jsonl, stratified by tool",
+  "trellis": {
+    "n": 60,
+    "correct": 32
+  },
+  "eslint": {
+    "n": 40,
+    "correct": 18
+  },
+  "ruff": {
+    "n": 20,
+    "correct": 8
+  },
+  "all": {
+    "n": 120,
+    "correct": 58
+  }
+}
