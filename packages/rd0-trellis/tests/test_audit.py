@@ -90,3 +90,28 @@ def test_nested_trellis_toml_does_not_override_root_levels(tmp_path):
     (wf / "t.yml").write_text("uses: harshuljain13/rd0-trellis@main\n")
     (tmp_path / "AGENTS.md").write_text("- Do not leave commented-out code.\n")
     assert [i.status for i in audit(str(tmp_path)).items] == ["enforceable"]
+
+
+def test_misclassifications_from_aidev_spot_check(tmp_path):
+    (tmp_path / "package.json").write_text("{}")
+    lines = [
+        "In non-test code, prefer using `crate` in `use` directives instead of the crate name",
+        "No abbreviations like `exe` — use `exec` or full words.",
+        "Never add test-only exports (`now`, `delay`). Use `setSystemTime` from `bun:test`.",
+        "Do NOT use `--no-build` when testing.",
+        "Never add `#[allow(clippy::too_many_arguments)]` to a function.",
+        "Do not add `PRIMARY KEY` constraints to bulk tables.",
+        "Fully typed. No `Any` or coarse types like `dict[str, Any]`.",
+        "Skip with `describe.skipIf(process.env.SKIP === 'true')` when needed.",
+        "Pre-existing bugs are out of scope.",
+        "Leave pre-existing dead code alone unless asked.",
+        "Do not add the `lodash` package.",
+        "Never use `as any` to override private methods.",
+    ]
+    (tmp_path / "AGENTS.md").write_text("".join(f"- {x}\n" for x in lines))
+    r = audit(str(tmp_path))
+    got = {i.text: (i.status, i.rule) for i in r.items}
+    for x in lines[:10]:
+        assert got[x][0] == "judgment", (x, got[x])
+    assert got[lines[10]][1] == "no-restricted-imports"
+    assert got[lines[11]][1] == "@typescript-eslint/no-explicit-any"
