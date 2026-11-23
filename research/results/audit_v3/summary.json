@@ -1,0 +1,24 @@
+{
+  "repos": 758,
+  "skipped_no_instruction_files": [
+    "Metaculus/metaculus",
+    "imbue-ai/mngr",
+    "open-jarvis/OpenJarvis"
+  ],
+  "rules": 149530,
+  "enforced": 116,
+  "enforceable": 1671,
+  "judgment": 147743,
+  "checkable_pct": 1.2,
+  "unenforced_of_checkable_pct": 93.51,
+  "repos_with_checkable": 468,
+  "repos_with_enforced": 56,
+  "rules_per_repo_median": 99.5,
+  "by_status_tool": {
+    "enforceable/eslint": 341,
+    "enforceable/ruff": 91,
+    "enforceable/trellis": 1239,
+    "enforced/eslint": 78,
+    "enforced/ruff": 38
+  }
+}
