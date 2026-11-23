@@ -12,4 +12,4 @@ one() {
   rm -rf "$dir"
 }
 export -f one; export OUT HERE
-xargs -P6 -I{} bash -c 'one {}' < "$LIST"
+xargs -P6 -I{} bash -c 'one "$1"' _ {} < "$LIST"
