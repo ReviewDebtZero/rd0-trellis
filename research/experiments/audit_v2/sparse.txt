@@ -28,3 +28,4 @@
 **/setup.cfg
 **/trellis.toml
 **/.trellis.toml
+**/.github/workflows/**
