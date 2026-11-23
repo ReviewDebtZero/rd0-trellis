@@ -12,7 +12,7 @@ def load(name):
     path = os.path.join(HERE, f"labels_{name}.csv")
     if not os.path.exists(path):
         return None
-    with open(path, newline="", encoding="utf-8-sig") as f:
+    with open(path, newline="", encoding="utf-8-sig", errors="replace") as f:
         rows = {int(r["id"]): {k: r[k].strip().lower() for k in VALID} for r in csv.DictReader(f)}
     bad = [i for i, r in rows.items() if any(r[k] not in v for k, v in VALID.items())]
     bad += [i for i, r in rows.items() if r["checkable"] == "n" and r["check_matches"] != "n"]
