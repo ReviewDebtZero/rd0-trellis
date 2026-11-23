@@ -108,6 +108,7 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
         "Do not add the `lodash` package.",
         "Never use `as any` to override private methods.",
         "Do not add `lodash` as a dependency.",
+        "Never use `any` when reading `list[0]` from the API.",
     ]
     (tmp_path / "AGENTS.md").write_text("".join(f"- {x}\n" for x in lines))
     r = audit(str(tmp_path))
@@ -117,3 +118,4 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
     assert got[lines[10]][1] == "no-restricted-imports"
     assert got[lines[11]][1] == "@typescript-eslint/no-explicit-any"
     assert got[lines[12]][1] == "no-restricted-imports"
+    assert got[lines[13]][1] == "@typescript-eslint/no-explicit-any"
