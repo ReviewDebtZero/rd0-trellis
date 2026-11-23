@@ -32,7 +32,7 @@ def precision(labels, key, ok):
     out = {t: {"correct": c, "n": n, "pct": round(100 * c / n, 1)} for t, (c, n) in sorted(by_tool.items())}
     c, n = sum(v[0] for v in by_tool.values()), sum(v[1] for v in by_tool.values())
     out["sample"] = {"correct": c, "n": n, "pct": round(100 * c / n, 1)}
-    out["population_weighted_pct"] = round(100 * wok / wsum, 1)
+    out["tool_weighted_pct"] = round(100 * wok / wsum, 1)
     return out
 
 

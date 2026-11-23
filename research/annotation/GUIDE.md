@@ -8,8 +8,10 @@ precision, their agreement (Cohen's kappa), and precision on the adjudicated lab
 
 `build_sample.py` draws 200 checkable statements from the audit_v3 run (761 repos, classifier at PR #5
 commit `7bbd6e3`): 100 Trellis-native rules, 70 ESLint, 30 Ruff, at most 3 per repo per tool, seed 20261123.
-The 120 statements of the earlier unblinded spot check are excluded. Each row carries a sampling weight
-(pool size / sampled count) so overall precision can be reported for the whole checkable population.
+The 120 statements of the earlier unblinded spot check are excluded. Each row carries a tool weight
+(pool size / sampled count); `tool_weighted_pct` reweights the three tools to their share of the eligible pool
+(1,698 statements: the 1,787 checkable minus the 89 spot-check rows still present). It does not undo the
+per-repo cap, which over-represents repos with few checkable statements, so report it as an approximation.
 
 The sheets show the statement and the proposed check. They do not show whether the repo already enforces it,
 and annotators do not see each other's sheet until both are done.
