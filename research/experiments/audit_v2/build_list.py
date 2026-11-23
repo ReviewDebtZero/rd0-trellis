@@ -1,12 +1,14 @@
 """Repos for audit_v2: AIDev repos with at least one agent PR whose diff touches an instruction file,
 ranked by agent-PR count; top N are then checked for instruction files at HEAD.
 Usage: python build_list.py OUT_CSV [--top 800]"""
-import re, sys, collections
+import re
+import sys
+
 import pyarrow.parquet as pq
 from huggingface_hub import HfFileSystem
 
 PAT = re.compile(r"(^|/)(agents\.md|claude\.md|gemini\.md|conventions\.md|\.cursorrules|\.windsurfrules|\.clinerules)$"
-                 r"|(^|/)\.cursor/rules/|(^|/)\.github/copilot-instructions\.md$|(^|/)\.github/instructions/", re.I)
+                 r"|(^|/)\.cursor/rules/|(^|/)\.github/copilot-instructions\.md$|(^|/)\.github/instructions/", re.IGNORECASE)
 fs = HfFileSystem()
 D = "datasets/hao-li/AIDev"
 top = int(sys.argv[sys.argv.index("--top") + 1]) if "--top" in sys.argv else 800
