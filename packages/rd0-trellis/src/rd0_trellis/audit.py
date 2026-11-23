@@ -155,7 +155,7 @@ INSTEAD = re.compile(
 )
 BANNED_IMPORT = re.compile(
     NEG + r".{0,30}(?:import(?:ing)?|install(?:ing)?|depend(?:ing)? on)\s+(?:the\s+)?`([^`]+)`|"
-    + NEG + r".{0,30}(?:use|using|add|adding)\s+(?:the\s+)?`([^`]+)`\s+(?:library|package|module|dependency|lib|crate)",
+    + NEG + r".{0,30}(?:use|using|add|adding)\s+(?:the\s+)?`([^`]+)`\s+(?:as\s+an?\s+)?(?:library|package|module|dependency|lib|crate)",
     re.IGNORECASE,
 )
 BANNED_NAME = re.compile(NEG + CLAUSE + r"(?:use|call|using|calling|add|write)\s+`([^`]+)`", re.IGNORECASE)
