@@ -41,7 +41,7 @@ Judge the statement as written in the sheet; open the repo file only if the line
 | Statement | Proposed check | checkable | check_matches |
 |---|---|---|---|
 | Do not add `lodash` as a dependency. | eslint: no-restricted-imports (ban import lodash) | y | y |
-| Use `cargo check` instead of `cargo build` when possible | trellis: ban `cargo build` | n | n |
+| Never add test-only exports (`now`, `delay`). | trellis: ban `now` | n | n |
 | Never use `any` when reading `list[0]` from the API. | eslint: @typescript-eslint/no-explicit-any | y | partial |
 | Pre-existing bugs are out of scope. | trellis: scope | n | n |
 
