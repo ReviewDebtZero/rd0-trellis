@@ -54,7 +54,7 @@ for who, labels in ann.items():
 if ann["harshul"] and ann["devin"]:
     ids = sorted(key)
     res["agreement"] = {f: kappa(ann["harshul"], ann["devin"], ids, f) for f in VALID}
-    res["disagreements"] = [i for i in ids if ann["harshul"][i]["check_matches"] != ann["devin"][i]["check_matches"]]
+    res["disagreements"] = [i for i in ids if ann["harshul"][i] != ann["devin"][i]]
 out = os.path.join(HERE, "..", "results", "audit_v3", "precision_blinded.json")
 with open(out, "w") as f:
     json.dump(res, f, indent=1)
