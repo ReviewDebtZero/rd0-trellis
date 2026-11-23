@@ -1,0 +1,19 @@
+{
+  "repos": 761,
+  "rules": 148837,
+  "enforced": 142,
+  "enforceable": 2161,
+  "judgment": 146534,
+  "checkable_pct": 1.55,
+  "unenforced_of_checkable_pct": 93.83,
+  "repos_with_checkable": 508,
+  "repos_with_enforced": 57,
+  "rules_per_repo_median": 99,
+  "by_status_tool": {
+    "enforceable/eslint": 579,
+    "enforceable/ruff": 135,
+    "enforceable/trellis": 1447,
+    "enforced/eslint": 104,
+    "enforced/ruff": 38
+  }
+}
