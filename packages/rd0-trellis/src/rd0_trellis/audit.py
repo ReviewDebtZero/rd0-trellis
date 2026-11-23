@@ -46,7 +46,7 @@ MAX_DEPTH = 4
 NEG = r"\b(?:never|don'?t|do not|avoid|no|must not|mustn'?t|should ?not|shouldn'?t|without|ban|forbid|disallow|stop)\b"
 # Text between a negation and the thing it negates: stays inside one clause.
 CLAUSE = r"[^.;:!?\u2013\u2014]{0,30}"
-PY_HINT = re.compile(r"\bpython\b|\.py\b|\bdef \w|\b(?:dict|list|Optional)\[(?:str|int|float|bool|Any|[A-Z])|\b(?:mypy|pyright|pytest|noqa)\b|\b[EFW]\d{3}\b")
+PY_HINT = re.compile(r"\bpython\b|\.py\b|\bdef \w|\b(?:dict|list|Optional)\[(?:str|int|float|bool|bytes|Any|[A-Z])|\b(?:mypy|pyright|pytest|noqa)\b|\b[EFW]\d{3}\b")
 DIRECTIVE = re.compile(
     r"\b(?:never|don'?t|do not|avoid|must not|mustn'?t|shouldn'?t|should not|always|must|prefer|only use|"
     r"instead of|rather than|forbidden|not allowed|disallow|banned|make sure|ensure|use)\b|^no\s",

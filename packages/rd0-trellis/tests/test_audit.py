@@ -106,6 +106,7 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
         "Pre-existing bugs are out of scope.",
         "Leave pre-existing dead code alone unless asked.",
         "Do not use `config` as a module-level variable.",
+        "Do not use `any` to test whether a `list[bytes]` is empty.",
         "Do not add the `lodash` package.",
         "Never use `as any` to override private methods.",
         "Do not add `lodash` as a dependency.",
@@ -116,10 +117,10 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
     (tmp_path / "AGENTS.md").write_text("".join(f"- {x}\n" for x in lines))
     r = audit(str(tmp_path))
     got = {i.text: (i.status, i.rule) for i in r.items}
-    for x in lines[:11]:
+    for x in lines[:12]:
         assert got[x][0] == "judgment", (x, got[x])
-    assert got[lines[11]][1] == "no-restricted-imports"
-    assert got[lines[12]][1] == "@typescript-eslint/no-explicit-any"
-    assert got[lines[13]][1] == "no-restricted-imports"
-    assert got[lines[14]][1] == "@typescript-eslint/no-explicit-any"
-    assert got[lines[15]][1] == got[lines[16]][1] == "eqeqeq"
+    assert got[lines[12]][1] == "no-restricted-imports"
+    assert got[lines[13]][1] == "@typescript-eslint/no-explicit-any"
+    assert got[lines[14]][1] == "no-restricted-imports"
+    assert got[lines[15]][1] == "@typescript-eslint/no-explicit-any"
+    assert got[lines[16]][1] == got[lines[17]][1] == "eqeqeq"
