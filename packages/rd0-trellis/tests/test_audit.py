@@ -126,3 +126,11 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
     assert got[lines[14]][1] == "no-restricted-imports"
     assert got[lines[15]][1] == "@typescript-eslint/no-explicit-any"
     assert got[lines[16]][1] == got[lines[17]][1] == "eqeqeq"
+
+
+def test_js_index_is_not_python_hint(tmp_path):
+    (tmp_path / "package.json").write_text("{}")
+    line = "Never use `any` when reading `list[bytesRead]`."
+    (tmp_path / "AGENTS.md").write_text(f"- {line}\n")
+    got = {i.text: i.rule for i in audit(str(tmp_path)).items}
+    assert got[line] == "@typescript-eslint/no-explicit-any"
