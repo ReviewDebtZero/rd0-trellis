@@ -9,11 +9,14 @@ import statistics
 import sys
 
 src, dst = sys.argv[1], sys.argv[2]
-rows, checkable, by_tool = [], [], collections.Counter()
+rows, checkable, empty, by_tool = [], [], [], collections.Counter()
 for f in sorted(glob.glob(os.path.join(src, "*.json"))):
     with open(f) as fh:
         d = json.load(fh)
     repo = os.path.basename(f)[:-5].replace("_", "/", 1)
+    if not d["instruction_files"]:
+        empty.append(repo)
+        continue
     rows.append({"repo": repo, "instruction_files": len(d["instruction_files"]), "rules": d["rules"],
                  "enforced": d["enforced"], "enforceable": d["enforceable"], "judgment": d["judgment"]})
     for it in d["items"]:
@@ -23,9 +26,9 @@ for f in sorted(glob.glob(os.path.join(src, "*.json"))):
 def S(k):
     return sum(r[k] for r in rows)
 enf, ena = S("enforced"), S("enforceable")
-summary = {"repos": len(rows), "rules": S("rules"), "enforced": enf, "enforceable": ena, "judgment": S("judgment"),
+summary = {"repos": len(rows), "skipped_no_instruction_files": empty, "rules": S("rules"), "enforced": enf, "enforceable": ena, "judgment": S("judgment"),
            "checkable_pct": round(100 * (enf + ena) / S("rules"), 2),
-           "unenforced_of_checkable_pct": round(100 * ena / (enf + ena), 2),
+           "unenforced_of_checkable_pct": round(100 * ena / (enf + ena), 2) if enf + ena else None,
            "repos_with_checkable": sum(r["enforced"] + r["enforceable"] > 0 for r in rows),
            "repos_with_enforced": sum(r["enforced"] > 0 for r in rows),
            "rules_per_repo_median": statistics.median(r["rules"] for r in rows),
