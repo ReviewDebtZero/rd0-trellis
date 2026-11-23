@@ -15,8 +15,9 @@ def load(name):
     with open(path, newline="", encoding="utf-8-sig") as f:
         rows = {int(r["id"]): {k: r[k].strip().lower() for k in VALID} for r in csv.DictReader(f)}
     bad = [i for i, r in rows.items() if any(r[k] not in v for k, v in VALID.items())]
+    bad += [i for i, r in rows.items() if r["checkable"] == "n" and r["check_matches"] != "n"]
     if bad:
-        raise SystemExit(f"labels_{name}.csv: missing or invalid labels on ids {bad[:10]}")
+        raise SystemExit(f"labels_{name}.csv: missing, invalid or contradictory labels on ids {bad[:10]}")
     return rows
 
 
