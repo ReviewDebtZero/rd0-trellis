@@ -114,7 +114,7 @@ CATALOG = [
     _t("eslint:prefer-const", "eslint", "prefer-const", "js",
        r"(?:prefer|use) `?const`? (?:over|instead of|rather than|unless)", "prefer const"),
     _t("eslint:eqeqeq", "eslint", "eqeqeq", "js",
-       r"(?:use|prefer|always use) `?===|triple equals|strict equality|" + NEG + r".{0,30}(?:`==`|loose equality)", "strict equality"),
+       r"(?:use|prefer|always use|compare with) `?===|`===`.{0,30}(?:instead of|over|rather than|not)|triple equals|strict equality|" + NEG + r".{0,30}(?:`==`|loose equality)", "strict equality"),
     _t("eslint:no-eval", "eslint", "no-eval", "js", NEG + r".{0,30}\beval\b", "no eval"),
     _t("eslint:no-debugger", "eslint", "no-debugger", "js", NEG + r".{0,30}\bdebugger\b", "no debugger"),
     _t("eslint:import/no-default-export", "eslint", "import/no-default-export", "js",

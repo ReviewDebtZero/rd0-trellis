@@ -109,6 +109,8 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
         "Never use `as any` to override private methods.",
         "Do not add `lodash` as a dependency.",
         "Never use `any` when reading `list[0]` from the API.",
+        "Always compare with `===` instead of `==`.",
+        "Write `===` rather than `==` in comparisons.",
     ]
     (tmp_path / "AGENTS.md").write_text("".join(f"- {x}\n" for x in lines))
     r = audit(str(tmp_path))
@@ -119,3 +121,4 @@ def test_misclassifications_from_aidev_spot_check(tmp_path):
     assert got[lines[11]][1] == "@typescript-eslint/no-explicit-any"
     assert got[lines[12]][1] == "no-restricted-imports"
     assert got[lines[13]][1] == "@typescript-eslint/no-explicit-any"
+    assert got[lines[14]][1] == got[lines[15]][1] == "eqeqeq"
